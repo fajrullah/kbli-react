@@ -1,5 +1,5 @@
 {
-  "name": "@coreui/coreui-free-react-admin-template",
+  "name": "KBLI",
   "version": "2.6.0",
   "description": "CoreUI React Open Source Bootstrap 4 Admin Template",
   "author": "Łukasz Holeczek",
@@ -9,7 +9,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git@github.com:coreui/coreui-free-react-admin-template.git"
+    "url": "https://github.com/fajrullah/kbli-react.git"
   },
   "dependencies": {
     "@coreui/coreui": "^2.1.12",
@@ -37,6 +37,7 @@
     "simple-line-icons": "^2.4.1"
   },
   "devDependencies": {
+    "gh-pages": "^2.0.1",
     "react-scripts": "^3.0.1"
   },
   "scripts": {
