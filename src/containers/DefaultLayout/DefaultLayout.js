@@ -34,6 +34,8 @@ class DefaultLayout extends Component {
   }
 
   render() {
+    const { children } = this.props
+    const { match, history, location} = children.props
     return (
       <div className="app">
         <AppHeader fixed>
@@ -46,7 +48,7 @@ class DefaultLayout extends Component {
             <AppSidebarHeader />
             <AppSidebarForm />
             <Suspense>
-            <AppSidebarNav navConfig={navigation} {...this.props} router={router}/>
+            <AppSidebarNav navConfig={navigation} {...match} {...location} {...history} router={router}/>
             </Suspense>
             <AppSidebarFooter />
             <AppSidebarMinimizer />
@@ -67,8 +69,7 @@ class DefaultLayout extends Component {
                           <route.component {...props} />
                         )} />
                     ) : (null);
-                  })}
-                  <Redirect from="/" to="/dashboard" />
+                    })}
                 </Switch>
               </Suspense>
             </Container>
