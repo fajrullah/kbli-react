@@ -25,7 +25,7 @@ const Login = Loadable({
 
 class Routes extends Component {
   render() {
-    const authenticated = true;
+    const authenticated = this.props.authenticated;
     return (
           <BrowserRouter>
               <HashRouter>

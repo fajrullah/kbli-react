@@ -64,7 +64,10 @@ class Login extends Component {
                       </Row>
                       <Row>
                         <Col className="text-right">
-                          <Button color="link" className="px-0">Forgot Your Password ?</Button>
+                         {
+          // <Button color="link" className="px-0">Forgot Your Password ?</Button>
+
+                         }  
                         </Col>
                       </Row>
                     </Form>

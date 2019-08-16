@@ -2,14 +2,11 @@ import React, { Component } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { Badge, UncontrolledDropdown, DropdownItem, DropdownMenu, DropdownToggle, Nav, NavItem } from 'reactstrap';
 import PropTypes from 'prop-types';
-
+import { connect } from 'react-redux';
+import { deleteUser, deleteToken, setAuthenticated } from '../../utils/Action';
 import { AppAsideToggler, AppNavbarBrand, AppSidebarToggler } from '@coreui/react';
 import logo from '../../assets/img/brand/logo.svg'
 import sygnet from '../../assets/img/brand/sygnet.svg'
-
-const propTypes = {
-  children: PropTypes.node,
-};
 
 const defaultProps = {};
 
@@ -66,7 +63,7 @@ class DefaultHeader extends Component {
               <DropdownItem><i className="fa fa-file"></i> Projects<Badge color="primary">42</Badge></DropdownItem>
               <DropdownItem divider />
               <DropdownItem><i className="fa fa-shield"></i> Lock Account</DropdownItem>
-              <DropdownItem onClick={e => this.props.onLogout(e)}><i className="fa fa-lock"></i> Logout</DropdownItem>
+              <DropdownItem onClick={e => this.props.logout()}><i className="fa fa-lock"></i> Logout</DropdownItem>
             </DropdownMenu>
           </UncontrolledDropdown>
         </Nav>
@@ -77,7 +74,29 @@ class DefaultHeader extends Component {
   }
 }
 
+const propTypes = {
+  children: PropTypes.node,
+  logout : PropTypes.func,
+};
+
+
 DefaultHeader.propTypes = propTypes;
 DefaultHeader.defaultProps = defaultProps;
 
-export default DefaultHeader;
+DefaultHeader = connect(
+  state => ({
+    user: state.user,
+    token: state.token,
+  }),
+  (dispatch, ownProps) => ({
+    logout: () => {
+      localStorage.clear();
+      dispatch(deleteUser());
+      dispatch(deleteToken());
+      dispatch(setAuthenticated(false));
+    }
+  })
+)(DefaultHeader);
+
+const mapStateToProps = state => ({ authenticated : state.isAuthenticated, role : state.user , isFetching : state.isFetching });
+export default connect(mapStateToProps, null)(DefaultHeader);
