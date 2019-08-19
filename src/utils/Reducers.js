@@ -35,7 +35,7 @@ function user(state = userDefault, action) {
 function token(state = tokenDefault, action) {
   switch (action.type) {
     case SET_TOKEN:
-      return Object.assign(state, action.token);
+      return Object.assign({},state,{ token : action.token.token});
     case DELETE_TOKEN:
       return tokenDefault;
     default:
@@ -48,7 +48,7 @@ function isFetching(state = false, action) {
         case SET_FETCHING: 
           return action.state;
         default: 
-          return false;
+          return state;
   }
 }
 

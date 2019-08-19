@@ -42,7 +42,6 @@ export function actionGetUsername(values) {
       })
         .then(response => response.data)
         .then(json => {
-          console.log(json.user)
            dispatch(setUser(json.user));
            localStorage.setItem("user", JSON.stringify(json.user));
            dispatch(setFetching(false));
