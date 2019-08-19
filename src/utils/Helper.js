@@ -10,7 +10,11 @@ export const toDateLocal  = (date) => {
 } 
 
 export const toDateTimeLocal  = (date) => {
-    return moment(date).local().format('DD-MM-YYYY h:m')
+    return moment(date).local().format('DD-MM-YYYY HH:mm:ss')
+}
+
+export const toDateTimeLocalDB  = (date) => {
+    return moment(date).local().format('YYYY-MM-DD HH:mm:ss')
 } 
 
 export const lastMomentAgo = (minutes) => {

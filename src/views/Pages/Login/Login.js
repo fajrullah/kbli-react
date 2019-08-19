@@ -6,6 +6,7 @@ import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { actionTryLogin, setToken } from '../../../utils/Action';
 import TextField from '@material-ui/core/TextField';
+const CryptoJS = require("crypto-js");
 const renderInput = ({
   label,
   input,
@@ -111,12 +112,12 @@ Login = connect(
       dispatch(actionTryLogin(values));
       setTimeout(function() {dispatch(reset('Login'));},
         3000
-    );
+      );
     },
     checkUser: () => {
       const token = localStorage.getItem('token');
       if (token !== null){
-        dispatch(setToken(JSON.parse(token)));
+        dispatch(setToken(token));
       };
     }
   })

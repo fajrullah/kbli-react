@@ -48,7 +48,7 @@ function isFetching(state = false, action) {
         case SET_FETCHING: 
           return action.state;
         default: 
-          return state;
+          return false;
   }
 }
 
@@ -67,7 +67,6 @@ function persistedState() {
     if (serializedState === null) return null
     return JSON.parse(serializedState)
   } catch(e) {
-    console.log(e)
     return null
   }
 }
