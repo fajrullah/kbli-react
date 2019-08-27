@@ -33,6 +33,27 @@ export function deleteToken() {
   return { type: DELETE_TOKEN };
 }
 
+export function actionCheckExpired(values) {
+   return dispatch => {
+     axios.get("http://127.0.0.1:4000/profile/", {
+        headers: {
+          'Authorization': `${values}`,
+          'Secret' : '4sri',
+        }
+      })
+        .then(response => response.data)
+        .then(json => {
+          console.log(json)
+            if(json.status !== 'on'){
+                localStorage.clear();
+                dispatch(deleteUser());
+                dispatch(deleteToken());
+                dispatch(setAuthenticated(false));
+            }
+        });
+    }
+  };
+
 export function actionGetUsername(values) {
    return dispatch => {
      axios.post("http://127.0.0.1:4000/getUser/",{ email : values.email }, {

@@ -4,7 +4,6 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
 import 'react-bootstrap-table/dist/react-bootstrap-table.min.css';
 import DateRangePicker from 'react-bootstrap-daterangepicker';
 import 'bootstrap-daterangepicker/daterangepicker.css';
-import usersData from './UsersData'
 import * as moment from 'moment/moment';
 import { connect } from 'react-redux';
 import { fetchingDataAPI , putDataAPI , deleteData , postingDataAPI } from '../../utils/AxiosMethod';
@@ -13,7 +12,7 @@ import { actionCheckExpired , deleteUser, deleteToken, setAuthenticated  } from 
 import { Redirect } from 'react-router-dom';
 let contentData = []
 const CryptoJS = require("crypto-js");
-class User extends Component {
+class Kbli extends Component {
  constructor(props) {
    super(props);
    this.state = {
@@ -179,7 +178,7 @@ class User extends Component {
     this.setState({ postData : {visible: false} });
   }
  componentWillUnmount(){
-
+    contentData = []
  }
 
  componentWillMount(){
@@ -189,12 +188,32 @@ class User extends Component {
  componentDidMount(){
   const { isAuthenticated , level } = this.props
   if(isAuthenticated){
-    fetchingDataAPI('user').then(result => {
-      this.setState({
-        data : result,
-        level : level
+    fetchingDataAPI('kbli').then(result => {
+      // this.setState({
+      //   data : result,
+      //   level : level
+      // })
+      let s = []
+      let json = []
+      let max = []
+      result.map((key,index) => {
+        json = JSON.parse(key.price)
+        let sop = {}
+        json.map(k => {
+            Object.assign(sop, {['max_price_'+k.year] : k.max_price , ['min_price_' + k.year] : k.min_price  })  
+          })
+        s[index] = sop
       })
-    }).catch(err => console.log(err));
+      console.log(s)
+      return result
+    })
+    .then(res => {
+      console.log(res)
+      res.map((k,i) => {
+       // console.log(k.price)
+      })
+    })
+    .catch(err => console.log(err));
   }
  }
   render() {
@@ -221,7 +240,7 @@ class User extends Component {
         }
     };
 
-    const user = usersData.find( user => user.id.toString() === this.props.match.params.id)
+    const user = ''
 
     const userDetails = user ? Object.entries(user) : [['id', (<span><i className="text-muted icon-ban"></i> Not found</span>)]]
      if (!this.props.isAuthenticated) {
@@ -243,7 +262,7 @@ class User extends Component {
           <Col xs="12" lg="12">
             <Card>
               <CardHeader>
-                <strong><i className="icon-info pr-1"></i>User List</strong>
+                <strong><i className="icon-info pr-1"></i>Kbli List</strong>
               </CardHeader>
               <CardBody>
                  <div className='form-group'>
@@ -262,12 +281,8 @@ class User extends Component {
                  {/*<button onClick={this.getSelectedRowKeys.bind(this)}>Get selected row keys</button>*/}
                  <BootstrapTable data={ data } remote={ this.remote } selectRow={ selectRowProp } cellEdit={ cellEditProp } pagination scrollTop={ 'Bottom' } hover condensed striped exportCSV
                    expandableRow={ this.isExpandableRow } expandComponent={ this.expandComponent } options={ options } deleteRow={ true } width="100%">
-                  <TableHeaderColumn ref='id' dataField='id' isKey={ true } headerAlign='center'  dataAlign='center' width="50px">ID</TableHeaderColumn>
-                  <TableHeaderColumn ref='first_name' dataField='first_name' filter={ { type: 'TextFilter' } } headerAlign='center' dataAlign='center' width="100px">First Name</TableHeaderColumn>
-                  <TableHeaderColumn ref='last_name' dataField='last_name' filter={ { type: 'TextFilter'} } headerAlign='center' dataAlign='center' width="100px">Last Name</TableHeaderColumn>
-                  <TableHeaderColumn ref='email' dataFormat={ this.emailType } dataField='email' filter={ { type: 'TextFilter' } } headerAlign='center' dataAlign='left'>Email</TableHeaderColumn>
-                  <TableHeaderColumn ref='status' filter={ { type: 'TextFilter' } } dataField='status' dataFormat={ this.statusType } headerAlign='center' dataAlign='center' editable={ { type: 'textarea' , validator: this.jobStatusValidator } } width="80px">Status</TableHeaderColumn>
-                  <TableHeaderColumn ref='level'  dataField='level' dataFormat={ this.levelType } filter={ { type: 'TextFilter' } } headerAlign='center' dataAlign='center' editable={ { type: 'textarea' , validator: this.jobStatusValidator } } width="80px">Level</TableHeaderColumn>
+                  <TableHeaderColumn ref='id_row' dataField='id_row' isKey={ true } headerAlign='center'  dataAlign='center' width="50px">ID</TableHeaderColumn>
+                  <TableHeaderColumn ref='price' dataField='price' filter={ { type: 'TextFilter' } } headerAlign='center' dataAlign='left'>Price</TableHeaderColumn>
                   <TableHeaderColumn ref='created' dataField='created' filter={ { type: 'TextFilter' } } dataFormat = {this.createdType} headerAlign='center' dataAlign='left'>Create Time</TableHeaderColumn>
                 </BootstrapTable>
               </CardBody>
@@ -325,6 +340,6 @@ const mapDispatchToProps = dispatch => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(User);
+export default connect(mapStateToProps, mapDispatchToProps)(Kbli);
 
 

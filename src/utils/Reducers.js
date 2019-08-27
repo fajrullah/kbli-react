@@ -24,7 +24,7 @@ const tokenDefault = {
 function user(state = userDefault, action) {
   switch (action.type) {
     case SET_USER:
-      return Object.assign({},state,{ user : action.user.email});
+      return Object.assign({},state,{ user : action.user.email, level : action.user.level});
     case DELETE_USER:
       return userDefault;
     default:

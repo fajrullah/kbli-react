@@ -11,11 +11,12 @@ import sygnet from '../../assets/img/brand/sygnet.svg'
 const defaultProps = {};
 
 class DefaultHeader extends Component {
+
   render() {
 
     // eslint-disable-next-line
-    const { children, ...attributes } = this.props;
-
+    const { user , children, ...attributes } = this.props;
+    const { level } = user
     return (
       <React.Fragment>
         <AppSidebarToggler className="d-lg-none" display="md" mobile />
@@ -51,9 +52,12 @@ class DefaultHeader extends Component {
               <img src={'../../assets/img/avatars/6.jpg'} className="img-avatar" alt="admin@bootstrapmaster.com" />
             </DropdownToggle>
             <DropdownMenu right>
-              <DropdownItem header tag="div" className="text-center"><strong>Account</strong></DropdownItem>
-              <DropdownItem><Link to="/registered"> <i className="fa fa-user"></i> Create <Badge color="info">42</Badge></Link></DropdownItem>
-              {
+
+              { (level === 1) && <div>
+                    <DropdownItem header tag="div" className="text-center"><strong>Account</strong></DropdownItem>
+                    <DropdownItem><Link to="/registered"> <i className="fa fa-user"></i> Create <Badge color="info">42</Badge></Link></DropdownItem>
+                    <DropdownItem header tag="div" className="text-center"><strong>Setting</strong></DropdownItem>
+                    <DropdownItem><Link to="/users"> <i className="fa fa-gears"></i> Manage Users <Badge color="info">42</Badge></Link></DropdownItem></div> 
                 //<DropdownItem header tag="div" className="text-center"><strong>Settings</strong></DropdownItem>
                 // <DropdownItem><i className="fa fa-envelope-o"></i> Messages<Badge color="success">42</Badge></DropdownItem>
                 // <DropdownItem><i className="fa fa-tasks"></i> Tasks<Badge color="danger">42</Badge></DropdownItem>
@@ -63,8 +67,7 @@ class DefaultHeader extends Component {
                 // <DropdownItem><i className="fa fa-usd"></i> Payments<Badge color="secondary">42</Badge></DropdownItem>
                 // <DropdownItem><i className="fa fa-file"></i> Projects<Badge color="primary">42</Badge></DropdownItem>
               }
-              <DropdownItem header tag="div" className="text-center"><strong>Setting</strong></DropdownItem>
-              <DropdownItem><Link to="/users"> <i className="fa fa-gears"></i> Manage Users <Badge color="info">42</Badge></Link></DropdownItem>
+
               <DropdownItem header tag="div" className="text-center"><strong>Logout</strong></DropdownItem>
               <DropdownItem onClick={e => this.props.logout()}><i className="fa fa-lock"></i> Logout</DropdownItem>
             </DropdownMenu>
@@ -101,5 +104,5 @@ DefaultHeader = connect(
   })
 )(DefaultHeader);
 
-const mapStateToProps = state => ({ authenticated : state.isAuthenticated, role : state.user , isFetching : state.isFetching });
+const mapStateToProps = state => ({ authenticated : state.isAuthenticated, level : state.level });
 export default connect(mapStateToProps, null)(DefaultHeader);
