@@ -189,35 +189,28 @@ class Kbli extends Component {
   const { isAuthenticated , level } = this.props
   if(isAuthenticated){
     fetchingDataAPI('kbli').then(result => {
-      // this.setState({
-      //   data : result,
-      //   level : level
-      // })
-      let s = []
-      let json = []
-      let max = []
+      let emptyBracket = result, json = []
       result.map((key,index) => {
         json = JSON.parse(key.price)
         let sop = {}
         json.map(k => {
             Object.assign(sop, {['max_price_'+k.year] : k.max_price , ['min_price_' + k.year] : k.min_price  })  
           })
-        s[index] = sop
+        Object.assign(emptyBracket[index],sop)
       })
-      console.log(s)
-      return result
+      return emptyBracket
     })
     .then(res => {
-      console.log(res)
-      res.map((k,i) => {
-       // console.log(k.price)
+      this.setState({
+        data : res,
+        level : level
       })
     })
     .catch(err => console.log(err));
   }
  }
   render() {
-    const { cellEditProp , data , postData , form  } = this.state
+    const { cellEditProp , data , postData , form   } = this.state
     const { email , password , re_password } = form
     const selectRowProp = {
       mode: 'checkbox',
@@ -249,6 +242,7 @@ class Kbli extends Component {
      if (this.props.isAuthenticated && this.props.level !== 1) {
       return (<Redirect to="/dashboard" />);
     }
+    console.log(data)
     return (
       
       <div className="animated fadeIn">
@@ -257,7 +251,6 @@ class Kbli extends Component {
              {postData.notification}
             </Alert>
       }
-
         <Row xs="12" lg="12">
           <Col xs="12" lg="12">
             <Card>
@@ -283,6 +276,7 @@ class Kbli extends Component {
                    expandableRow={ this.isExpandableRow } expandComponent={ this.expandComponent } options={ options } deleteRow={ true } width="100%">
                   <TableHeaderColumn ref='id_row' dataField='id_row' isKey={ true } headerAlign='center'  dataAlign='center' width="50px">ID</TableHeaderColumn>
                   <TableHeaderColumn ref='price' dataField='price' filter={ { type: 'TextFilter' } } headerAlign='center' dataAlign='left'>Price</TableHeaderColumn>
+                  <TableHeaderColumn ref='max_price_2010' dataField='max_price_2010' filter={ { type: 'TextFilter' } } headerAlign='center' dataAlign='left'>max_price_2010</TableHeaderColumn>
                   <TableHeaderColumn ref='created' dataField='created' filter={ { type: 'TextFilter' } } dataFormat = {this.createdType} headerAlign='center' dataAlign='left'>Create Time</TableHeaderColumn>
                 </BootstrapTable>
               </CardBody>

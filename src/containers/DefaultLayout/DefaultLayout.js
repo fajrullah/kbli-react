@@ -19,7 +19,8 @@ import {
 import navigation from '../../_nav';
 // routes config
 import routes from '../../routes';
-
+import { deleteUser, deleteToken, setAuthenticated } from '../../utils/Action';
+import { connect } from 'react-redux';
 const DefaultAside = React.lazy(() => import('./DefaultAside'));
 const DefaultFooter = React.lazy(() => import('./DefaultFooter'));
 const DefaultHeader = React.lazy(() => import('./DefaultHeader'));
@@ -27,6 +28,13 @@ const DefaultHeader = React.lazy(() => import('./DefaultHeader'));
 class DefaultLayout extends Component {
 
   loading = () => <div className="animated fadeIn pt-1 text-center">Loading...</div>
+
+  componentWillUnmount(){
+    const { dispatch } = this.props; 
+    window.onbeforeunload = function() {
+       this.props.logout()
+    }
+  }
 
   signOut(e) {
     e.preventDefault()
@@ -89,5 +97,22 @@ class DefaultLayout extends Component {
     );
   }
 }
+DefaultLayout = connect(
+  state => ({
+    user: state.user,
+    token: state.token,
+  }),
+  (dispatch, ownProps) => ({
+    logout: () => {
+      localStorage.clear();
+      dispatch(deleteUser());
+      dispatch(deleteToken());
+      dispatch(setAuthenticated(false));
+    }
+  })
+)(DefaultLayout);
 
-export default DefaultLayout;
+const mapStateToProps = state => ({ authenticated : state.isAuthenticated, level : state.level });
+export default connect(mapStateToProps, null)(DefaultLayout);
+
+
