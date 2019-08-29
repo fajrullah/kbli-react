@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Form, Input, Badge, Card, CardBody, CardHeader, Col, Row, Table, Button , Alert, Modal, ModalHeader, ModalBody, ModalFooter, InputGroup , InputGroupAddon , InputGroupText } from 'reactstrap';
+import { Form, Input, Badge, Card, CardBody, CardHeader, Col, Row,  Button , Alert, Modal, ModalHeader, ModalBody, ModalFooter, InputGroup , InputGroupAddon , InputGroupText, ButtonToolbar, ButtonGroup } from 'reactstrap';
+import Select from 'react-select';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
 import 'react-bootstrap-table/dist/react-bootstrap-table.min.css';
 import DateRangePicker from 'react-bootstrap-daterangepicker';
@@ -8,21 +9,24 @@ import * as moment from 'moment/moment';
 import { connect } from 'react-redux';
 import { fetchingDataAPI , putDataAPI , deleteData , postingDataAPI } from '../../utils/AxiosMethod';
 import { toDateTimeLocal, toDateTimeLocalDB } from '../../utils/Helper';
-import { actionCheckExpired , deleteUser, deleteToken, setAuthenticated  } from '../../utils/Action';
+import { actionCheckExpired } from '../../utils/Action';
 import { Redirect } from 'react-router-dom';
-let contentData = []
-const CryptoJS = require("crypto-js");
+
 class Kbli extends Component {
  constructor(props) {
    super(props);
    this.state = {
         data : [],
+        tableComponent : [],
         startDateDR: moment().subtract(30, 'days'),
         endDate: moment(),
         labelCal: 'Filter By Date',
         modal: false,
         token : '',
         level : '',
+        objectWithMaxProps : [],
+        selectedOption: null,
+        selectedOptionValue: [],
         form : {
             password : '',
             re_password : '',
@@ -96,15 +100,17 @@ class Kbli extends Component {
               })
         }
   }
-  handleChange = (e) => {
-    e.preventDefault()
-    this.setState({
-      form :{
-        ...this.state.form,
-        [e.target.name] : e.target.value
-      }
+  handleChangeSelectOpt = selectedOption => {
+    let { tableComponent, objectWithMaxProps } = this.state
+    let selectedOptionValue = selectedOption.map(key => key.value)
+    let optionToFiltered = objectWithMaxProps.filter(key => {
+      return !selectedOptionValue.includes(key)
     })
-  }
+    console.log(optionToFiltered,'test')
+    this.setState({ selectedOption });
+   // console.log(`Option selected:`, selectedOption);
+  };
+
   onDeleteCell = async (row) => {
    row.map((k,i) => {
       deleteData('user',{ data: {id : k} })
@@ -156,7 +162,8 @@ class Kbli extends Component {
       )).catch(err => console.log(err))
     }
   }
-  invalidJobStatus = (cell, row) => {
+
+ invalidJobStatus = (cell, row) => {
     return 'invalid-jobstatus-class';
   }
   jobStatusValidator = (value) => {
@@ -178,39 +185,62 @@ class Kbli extends Component {
     this.setState({ postData : {visible: false} });
   }
  componentWillUnmount(){
-    contentData = []
+
  }
 
  componentWillMount(){
-  const { token , isAuthenticated } = this.props
+  const { token } = this.props
   this.props.checkToken(token.token)
 }
  componentDidMount(){
   const { isAuthenticated , level } = this.props
   if(isAuthenticated){
     fetchingDataAPI('kbli').then(result => {
-      let emptyBracket = result, json = []
+      let emptyBracket = result, 
+          json = [], ObjectLeng = 0, 
+          indexObject = [], indexWithMaxValue = 0,
+          sop = {} , leng = 0 , objectWithMaxProps = []
+
       result.map((key,index) => {
         json = JSON.parse(key.price)
-        let sop = {}
         json.map(k => {
-            Object.assign(sop, {['max_price_'+k.year] : k.max_price , ['min_price_' + k.year] : k.min_price  })  
+            return Object.assign(sop, {['max_price_'+k.year] : k.max_price , ['min_price_' + k.year] : k.min_price  })  
           })
-        Object.assign(emptyBracket[index],sop)
+          if(ObjectLeng >= Object.keys(sop).length){
+            leng = ObjectLeng 
+          }else{
+            indexWithMaxValue = index
+            objectWithMaxProps = Object.keys(sop)
+            leng = Object.keys(sop).length
+          }
+        ObjectLeng = leng
+        return Object.assign(emptyBracket[index],sop)
       })
-      return emptyBracket
+        indexObject = Object.keys(emptyBracket[indexWithMaxValue])
+      return { emptyBracket , indexObject, objectWithMaxProps}
     })
     .then(res => {
+      const selectedOptionValue = res.objectWithMaxProps.map((k,i) => {
+        return { value : k , label : k}
+      })
       this.setState({
-        data : res,
-        level : level
+        data : res.emptyBracket,
+        tableComponent : res.indexObject,
+        level : level,
+        selectedOptionValue : selectedOptionValue,
+        objectWithMaxProps : res.objectWithMaxProps
       })
     })
     .catch(err => console.log(err));
   }
  }
+
   render() {
-    const { cellEditProp , data , postData , form   } = this.state
+    const { cellEditProp , data , 
+            postData , form , 
+            tableComponent , objectWithMaxProps,
+            selectedOption , selectedOptionValue
+          } = this.state
     const { email , password , re_password } = form
     const selectRowProp = {
       mode: 'checkbox',
@@ -234,15 +264,13 @@ class Kbli extends Component {
     };
 
     const user = ''
-
-    const userDetails = user ? Object.entries(user) : [['id', (<span><i className="text-muted icon-ban"></i> Not found</span>)]]
      if (!this.props.isAuthenticated) {
       return (<Redirect to="/login" />);
     }
      if (this.props.isAuthenticated && this.props.level !== 1) {
       return (<Redirect to="/dashboard" />);
     }
-    console.log(data)
+    console.log(objectWithMaxProps)
     return (
       
       <div className="animated fadeIn">
@@ -250,7 +278,7 @@ class Kbli extends Component {
         postData.isFetching && <Alert color={postData.status} isOpen={this.state.visible} toggle={this.onDismiss}>
              {postData.notification}
             </Alert>
-      }
+      } 
         <Row xs="12" lg="12">
           <Col xs="12" lg="12">
             <Card>
@@ -258,7 +286,15 @@ class Kbli extends Component {
                 <strong><i className="icon-info pr-1"></i>Kbli List</strong>
               </CardHeader>
               <CardBody>
-                 <div className='form-group'>
+                <div className='form-group' wdith="40%">
+                  <Select
+                    value={selectedOption}
+                    onChange={this.handleChangeSelectOpt}
+                    options={selectedOptionValue}
+                    isMulti={true}
+                  />
+                </div>
+                <div className='form-group'>
                   <DateRangePicker 
                     startDate={this.state.startDateDR} 
                     endDate={this.state.endDate}
@@ -273,55 +309,17 @@ class Kbli extends Component {
                 </div>
                  {/*<button onClick={this.getSelectedRowKeys.bind(this)}>Get selected row keys</button>*/}
                  <BootstrapTable data={ data } remote={ this.remote } selectRow={ selectRowProp } cellEdit={ cellEditProp } pagination scrollTop={ 'Bottom' } hover condensed striped exportCSV
-                   expandableRow={ this.isExpandableRow } expandComponent={ this.expandComponent } options={ options } deleteRow={ true } width="100%">
-                  <TableHeaderColumn ref='id_row' dataField='id_row' isKey={ true } headerAlign='center'  dataAlign='center' width="50px">ID</TableHeaderColumn>
-                  <TableHeaderColumn ref='price' dataField='price' filter={ { type: 'TextFilter' } } headerAlign='center' dataAlign='left'>Price</TableHeaderColumn>
-                  <TableHeaderColumn ref='max_price_2010' dataField='max_price_2010' filter={ { type: 'TextFilter' } } headerAlign='center' dataAlign='left'>max_price_2010</TableHeaderColumn>
-                  <TableHeaderColumn ref='created' dataField='created' filter={ { type: 'TextFilter' } } dataFormat = {this.createdType} headerAlign='center' dataAlign='left'>Create Time</TableHeaderColumn>
+                   expandableRow={ this.isExpandableRow } expandComponent={ this.expandComponent } options={ options } deleteRow={ true } width="100%" keyField='id_row'>
+                     {
+                        tableComponent.map((column,index) => {
+                          return (<TableHeaderColumn key={index} ref={column} dataField={column} filter={ { type: 'TextFilter' } } headerAlign='center' dataAlign='left'>{column}</TableHeaderColumn>);
+                        })
+                    }
                 </BootstrapTable>
               </CardBody>
             </Card>
           </Col>
         </Row>
-        <Modal isOpen={this.state.modal} backdrop={true} toggle={this.togglePassword}>
-          <Form onSubmit={this.handleSubmit}>
-          <ModalHeader toggle={this.togglePassword}> Generate New Password </ModalHeader>
-          <ModalBody>
-            {
-                postData.isFetching && <Alert color={postData.status} isOpen={this.state.visible}>
-                     {postData.notification}
-                    </Alert>
-              }
-            <InputGroup className="mb-3">
-              <InputGroupAddon addonType="prepend">
-                <InputGroupText>
-                  <i className="icon-user"></i>
-                </InputGroupText>
-              </InputGroupAddon>
-              <Input type="email" onChange={this.handleChange}  readOnly name="email" defaultValue={email}/>
-            </InputGroup>
-            <InputGroup className="mb-3">
-              <InputGroupAddon addonType="prepend">
-                <InputGroupText>
-                  <i className="icon-lock"></i>
-                </InputGroupText>
-              </InputGroupAddon>
-              <Input type="password" onChange={this.handleChange} defaultValue={password}  name="password" placeholder="Password" autoComplete="password" />
-            </InputGroup>
-            <InputGroup className="mb-4">
-              <InputGroupAddon addonType="prepend">
-                <InputGroupText>
-                  <i className="icon-lock"></i>
-                </InputGroupText>
-              </InputGroupAddon>
-              <Input type="password" onChange={this.handleChange} defaultValue={re_password} name="re_password" placeholder="Repeat password" autoComplete="new-password" />
-            </InputGroup>
-          </ModalBody>
-          <ModalFooter>
-            <Button color="warning">Generate New Password <i className="icon-lock" /></Button>
-          </ModalFooter>
-          </Form>
-        </Modal>
       </div>
     )
   }
