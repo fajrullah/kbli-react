@@ -102,12 +102,12 @@ class Kbli extends Component {
   }
   handleChangeSelectOpt = selectedOption => {
     let { tableComponent, objectWithMaxProps } = this.state
-    let selectedOptionValue = selectedOption.map(key => key.value)
-    let optionToFiltered = objectWithMaxProps.filter(key => {
-      return !selectedOptionValue.includes(key)
+    selectedOption.map(key => {
+      if(!tableComponent.includes(key.value)){
+        tableComponent.push(key.value)
+      }
     })
-    console.log(optionToFiltered,'test')
-    this.setState({ selectedOption });
+    this.setState({ selectedOption, tableComponent });
    // console.log(`Option selected:`, selectedOption);
   };
 
@@ -216,7 +216,7 @@ class Kbli extends Component {
         ObjectLeng = leng
         return Object.assign(emptyBracket[index],sop)
       })
-        indexObject = Object.keys(emptyBracket[indexWithMaxValue])
+        indexObject = Object.keys(emptyBracket[indexWithMaxValue]).splice(0,10)
       return { emptyBracket , indexObject, objectWithMaxProps}
     })
     .then(res => {
