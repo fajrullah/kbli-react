@@ -1,14 +1,11 @@
 import React, { Component } from 'react';
-import { Form, Input, Badge, Card, CardBody, CardHeader, Col, Row,  Button , Alert, Modal, ModalHeader, ModalBody, ModalFooter, InputGroup , InputGroupAddon , InputGroupText, ButtonToolbar, ButtonGroup } from 'reactstrap';
+import { Card, CardBody, CardHeader, Col, Row , Alert} from 'reactstrap';
 import Select from 'react-select';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
 import 'react-bootstrap-table/dist/react-bootstrap-table.min.css';
-import DateRangePicker from 'react-bootstrap-daterangepicker';
-import 'bootstrap-daterangepicker/daterangepicker.css';
-import * as moment from 'moment/moment';
 import { connect } from 'react-redux';
-import { fetchingDataAPI , putDataAPI , deleteData , postingDataAPI } from '../../utils/AxiosMethod';
-import { toDateTimeLocal, toDateTimeLocalDB } from '../../utils/Helper';
+import { fetchingDataAPI , putDataAPI , deleteData  } from '../../utils/AxiosMethod';
+import { toRomawiString } from '../../utils/Helper';
 import { actionCheckExpired } from '../../utils/Action';
 import { Redirect } from 'react-router-dom';
 
@@ -18,8 +15,6 @@ class Kbli extends Component {
    this.state = {
         data : [],
         tableComponent : [],
-        startDateDR: moment().subtract(30, 'days'),
-        endDate: moment(),
         labelCal: 'Filter By Date',
         modal: false,
         token : '',
@@ -46,74 +41,24 @@ class Kbli extends Component {
    };
    this.onAfterSaveCell = this.onAfterSaveCell.bind(this)
    this.jobStatusValidator = this.jobStatusValidator.bind(this)
-   this.statusType = this.statusType.bind(this)
-   this.levelType = this.levelType.bind(this)
-   this.emailType = this.emailType.bind(this)
    this.onDismiss = this.onDismiss.bind(this)
    this.togglePassword = this.togglePassword.bind(this);
-   this.onChangeDatePicker = this.onChangeDatePicker.bind(this);
-
  }
-  emailType = (cell) => {
-    return (<div><Badge color="warning" onClick={ () => this.togglePassword(cell)}><i className="icon-lock"/></Badge>{cell}</div>)
-  }
-  statusType = (cell) => {
-    if(cell == 0){
-      return (<Badge color="danger">Off</Badge>)
-    }else{
-      return (<Badge color="success">On</Badge>)
-    }
-  }
-  levelType = (cell) => {
-    if(cell == 0){
-      return (<Badge color="secondary">User</Badge>)
-    }else{
-      return (<Badge color="primary">Admin</Badge>)
-    }
-  }
-  createdType = (cell) => {
-    return toDateTimeLocal(cell)
-  }
-  handleSubmit = (e) => {
-    e.preventDefault()
-    const { form } = this.state
-    const { re_password , password , email } = form
-    if(re_password === password && password !== undefined && password.length >= 6){
-    putDataAPI('password',{password, email}).then(result => {
-      if(result.response === 200){
-        this.setState({
-                 postData : {
-                      isFetching : true,
-                      status : 'success',
-                      notification : `Success Generate New Password`
-                  }
-              })
-      }
-    }).catch( err => console.log(err))          
-        }else{
-              this.setState({
-                 postData : {
-                      isFetching : true,
-                      status : 'danger',
-                      notification : `Password not Match / at Least 6 Character`
-                  }
-              })
-        }
-  }
+
   handleChangeSelectOpt = selectedOption => {
-    let { tableComponent, objectWithMaxProps } = this.state
-    selectedOption.map(key => {
-      if(!tableComponent.includes(key.value)){
-        tableComponent.push(key.value)
-      }
-    })
-    this.setState({ selectedOption, tableComponent });
-   // console.log(`Option selected:`, selectedOption);
+    let { tableComponent } = this.state
+    let toDefaultvalue = tableComponent.slice(0,4)
+    if(selectedOption !== null){
+      selectedOption.map(key => {
+        return toDefaultvalue.push(key.value)
+      })
+    }
+    this.setState({ selectedOption, tableComponent : toDefaultvalue });
   };
 
   onDeleteCell = async (row) => {
    row.map((k,i) => {
-      deleteData('user',{ data: {id : k} })
+      return deleteData('user',{ data: {id : k} })
       .then(result => result)
       .catch(err => console.log(err))
    })
@@ -127,39 +72,26 @@ class Kbli extends Component {
       )
       },2000)
   }
-  onChangeDatePicker = (event, picker) =>{
-      const dataTime = {
-          start : toDateTimeLocalDB(picker.startDate._d),
-          end : toDateTimeLocalDB(picker.endDate._d)
-      }
-      if(event.handleObj.type === 'apply'){
-        postingDataAPI('/user/createtime',dataTime).then(res => {
-          return res.data
-        })
-        .then(data => {
-          this.setState({data,
-                postData : {
-                  isFetching : true,
-                  status : 'info',
-                  notification : `Success Filtered Data From ${dataTime.start} to ${dataTime.end}`
-              },
-              labelCal: (`${dataTime.start} s/d ${dataTime.end}`)
-          })
-        })
-        .catch(err => console.log(err))
-    }
-  }
  onAfterSaveCell = (row, cellName, cellValue) => {
-
-    if(cellName !== 'email'){
-      putDataAPI('user',row).then(
-      this.setState({
+  let priceJSONparse = JSON.parse(row.price)
+  if(cellName.search('_price_') >= 1){
+    const parseCellName = cellName.split('_') ,
+        objectEdit = { 
+          [parseCellName[0] + '_price'] : parseInt(cellValue) 
+        },
+        indexfOfCell = priceJSONparse.map(key => key.year).indexOf(parseInt(parseCellName[2])),
+        locateInJSON = priceJSONparse.find(key => key.year === parseInt(parseCellName[2]))
+        Object.assign(priceJSONparse[indexfOfCell],objectEdit)
+  }
+  if(cellName !== 'labels'){
+      putDataAPI('kbli',{...row , price : priceJSONparse}).then(
+            this.setState({
                 postData : {
                   isFetching : true,
                   status : 'success',
-                  notification : 'Success Update Data'
-              }}
-      )).catch(err => console.log(err))
+                  notification : 'Success Update Data'}
+              })
+      ).catch(err => console.log(err))
     }
   }
 
@@ -196,10 +128,14 @@ class Kbli extends Component {
   const { isAuthenticated , level } = this.props
   if(isAuthenticated){
     fetchingDataAPI('kbli').then(result => {
-      let emptyBracket = result, 
-          json = [], ObjectLeng = 0, 
+      let json = [], ObjectLeng = 0, 
           indexObject = [], indexWithMaxValue = 0,
           sop = {} , leng = 0 , objectWithMaxProps = []
+      let emptyBracket = result.map(key => {
+        const toStringLevel = `${key.level_1}${key.level_2}${key.level_3}${key.level_4}${key.level_5}`
+        const toStringSeparate = toRomawiString(toStringLevel)
+        return Object.assign(key , {labels : toStringSeparate})
+      })
 
       result.map((key,index) => {
         json = JSON.parse(key.price)
@@ -216,18 +152,21 @@ class Kbli extends Component {
         ObjectLeng = leng
         return Object.assign(emptyBracket[index],sop)
       })
-        indexObject = Object.keys(emptyBracket[indexWithMaxValue]).splice(0,10)
+        indexObject = Object.keys(emptyBracket[indexWithMaxValue]).splice(0,8)
+        indexObject.splice( 1, 0, "labels")
+        indexObject.splice( 2, 5); 
       return { emptyBracket , indexObject, objectWithMaxProps}
     })
     .then(res => {
       const selectedOptionValue = res.objectWithMaxProps.map((k,i) => {
         return { value : k , label : k}
       })
+      let tableComponent = res.indexObject
       this.setState({
         data : res.emptyBracket,
-        tableComponent : res.indexObject,
-        level : level,
-        selectedOptionValue : selectedOptionValue,
+        tableComponent,
+        level,
+        selectedOptionValue,
         objectWithMaxProps : res.objectWithMaxProps
       })
     })
@@ -237,11 +176,10 @@ class Kbli extends Component {
 
   render() {
     const { cellEditProp , data , 
-            postData , form , 
-            tableComponent , objectWithMaxProps,
+            postData , 
+            tableComponent , 
             selectedOption , selectedOptionValue
           } = this.state
-    const { email , password , re_password } = form
     const selectRowProp = {
       mode: 'checkbox',
       clickToSelect: true,
@@ -263,14 +201,13 @@ class Kbli extends Component {
         }
     };
 
-    const user = ''
      if (!this.props.isAuthenticated) {
       return (<Redirect to="/login" />);
     }
      if (this.props.isAuthenticated && this.props.level !== 1) {
       return (<Redirect to="/dashboard" />);
     }
-    console.log(objectWithMaxProps)
+
     return (
       
       <div className="animated fadeIn">
@@ -293,19 +230,6 @@ class Kbli extends Component {
                     options={selectedOptionValue}
                     isMulti={true}
                   />
-                </div>
-                <div className='form-group'>
-                  <DateRangePicker 
-                    startDate={this.state.startDateDR} 
-                    endDate={this.state.endDate}
-                    onEvent={this.onChangeDatePicker}
-                    showWeekNumbers
-                    >
-                    <Button onClick={this.onClick}>
-                      <i className="fa fa-calendar"/>
-                      <span> {this.state.labelCal}</span>                          
-                    </Button>            
-                  </DateRangePicker>
                 </div>
                  {/*<button onClick={this.getSelectedRowKeys.bind(this)}>Get selected row keys</button>*/}
                  <BootstrapTable data={ data } remote={ this.remote } selectRow={ selectRowProp } cellEdit={ cellEditProp } pagination scrollTop={ 'Bottom' } hover condensed striped exportCSV

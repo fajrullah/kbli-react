@@ -24,6 +24,10 @@ export const lastMomentAgo = (minutes) => {
 }
 
 
-
+export const toRomawiString = (value) => {
+	const toArrayValue = value.split('')
+	const joinArrayValue = toArrayValue.join('.')
+	return joinArrayValue
+} 
 
 
