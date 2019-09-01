@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { Card, CardBody, CardHeader, Col, Row , Alert} from 'reactstrap';
+import { Card, CardBody, CardHeader, Col, Row , Alert, Label ,Form ,  Input, InputGroup , InputGroupAddon , InputGroupText , Modal, ModalHeader, ModalBody, ModalFooter , Button} from 'reactstrap';
 import Select from 'react-select';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
 import 'react-bootstrap-table/dist/react-bootstrap-table.min.css';
 import { connect } from 'react-redux';
-import { fetchingDataAPI , putDataAPI , deleteData  } from '../../utils/AxiosMethod';
+import { fetchingDataAPI , putDataAPI , deleteData , postingDataAPI  } from '../../utils/AxiosMethod';
 import { toRomawiString } from '../../utils/Helper';
 import { actionCheckExpired } from '../../utils/Action';
 import { Redirect } from 'react-router-dom';
@@ -23,9 +23,14 @@ class Kbli extends Component {
         selectedOption: null,
         selectedOptionValue: [],
         form : {
-            password : '',
-            re_password : '',
-            email : '',
+            level_1 : '',
+            level_2 : '',
+            level_3 : '',
+            level_4 : '',
+            level_5 : '',
+            price : '',
+            description : '',
+            title : ''
           },
         postData : {
           notification : '',
@@ -42,7 +47,7 @@ class Kbli extends Component {
    this.onAfterSaveCell = this.onAfterSaveCell.bind(this)
    this.jobStatusValidator = this.jobStatusValidator.bind(this)
    this.onDismiss = this.onDismiss.bind(this)
-   this.togglePassword = this.togglePassword.bind(this);
+   this.toggleKbli = this.toggleKbli.bind(this);
  }
 
   handleChangeSelectOpt = selectedOption => {
@@ -55,6 +60,32 @@ class Kbli extends Component {
     }
     this.setState({ selectedOption, tableComponent : toDefaultvalue });
   };
+
+  handleChange = (e) => {
+    e.preventDefault()
+    this.setState({
+      form :{
+        ...this.state.form,
+        [e.target.name] : e.target.value
+      }
+    })
+  }
+
+  handleSubmit = (e) => {
+    e.preventDefault()
+    const { form } = this.state
+    postingDataAPI('kbli',form).then(result => {
+      if(result.response === 200){
+        this.setState({
+                 postData : {
+                      isFetching : true,
+                      status : 'success',
+                      notification : `Success Generate New Password`
+                  }
+              })
+      }
+    }).catch( err => console.log(err))          
+  }
 
   onDeleteCell = async (row) => {
    row.map((k,i) => {
@@ -105,19 +136,15 @@ class Kbli extends Component {
      }
     return true;
   }
-  togglePassword(v) {
+  toggleKbli(v) {
     this.setState(prevState => ({
       modal: !prevState.modal,
-      form : {
-        email : v,
-      }
     }));
   }
   onDismiss = () => {
     this.setState({ postData : {visible: false} });
   }
  componentWillUnmount(){
-
  }
 
  componentWillMount(){
@@ -178,8 +205,11 @@ class Kbli extends Component {
     const { cellEditProp , data , 
             postData , 
             tableComponent , 
-            selectedOption , selectedOptionValue
+            selectedOption , selectedOptionValue, form
           } = this.state
+    const { level_5, level_4 , level_3 , level_2 , level_1 , price , description, title } = form
+    const formComponent = Object.keys(form)
+    console.log(form)
     const selectRowProp = {
       mode: 'checkbox',
       clickToSelect: true,
@@ -209,8 +239,8 @@ class Kbli extends Component {
     }
 
     return (
-      
       <div className="animated fadeIn">
+      <Button color="success" onClick={ () => this.toggleKbli('s')}><i className="icon-plus"/> Add New KBLI</Button>
       {
         postData.isFetching && <Alert color={postData.status} isOpen={this.state.visible} toggle={this.onDismiss}>
              {postData.notification}
@@ -228,6 +258,7 @@ class Kbli extends Component {
                     value={selectedOption}
                     onChange={this.handleChangeSelectOpt}
                     options={selectedOptionValue}
+                    isSearchable = {true}
                     isMulti={true}
                   />
                 </div>
@@ -244,6 +275,111 @@ class Kbli extends Component {
             </Card>
           </Col>
         </Row>
+        <Modal isOpen={this.state.modal} backdrop={true} toggle={this.toggleKbli}>
+          <Form onSubmit={this.handleSubmit}>
+          <ModalHeader toggle={this.toggleKbli}> Create KBLI </ModalHeader>
+          <ModalBody>
+            {
+                postData.isFetching && <Alert color={postData.status} isOpen={this.state.visible}>
+                     {postData.notification}
+                    </Alert>
+            }
+          <Row>
+            <Col xs="4">
+              <InputGroup className="mb-3">
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="icon-options"></i>
+                        </InputGroupText>
+                      </InputGroupAddon>
+                      <Input type="text" onChange={this.handleChange}  placeholder="level 1" name={level_1} defaultValue={level_1} name="level_1"  />
+              </InputGroup>
+            </Col>
+            <Col xs="4">
+                <InputGroup className="mb-3">
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="icon-options"></i>
+                        </InputGroupText>
+                      </InputGroupAddon>
+                      <Input type="text" onChange={this.handleChange}   name={level_2} defaultValue={level_2} name="level_2" />
+              </InputGroup>
+            </Col>
+            <Col xs="4">
+              <InputGroup className="mb-3">
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="icon-options"></i>
+                        </InputGroupText>
+                      </InputGroupAddon>
+                      <Input type="text" onChange={this.handleChange}   name={level_3} defaultValue={level_3} name="level_3" />
+              </InputGroup>
+            </Col>
+          </Row>
+          <Row>
+            <Col xs="4">
+              <InputGroup className="mb-3">
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="icon-options"></i>
+                        </InputGroupText>
+                      </InputGroupAddon>
+                      <Input type="text" onChange={this.handleChange}   name={level_4} defaultValue={level_4} name="level_4" />
+              </InputGroup>
+            </Col>
+            <Col xs="4">
+                <InputGroup className="mb-3">
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="icon-options"></i>
+                        </InputGroupText>
+                      </InputGroupAddon>
+                      <Input type="text" onChange={this.handleChange}   name={level_5}  defaultValue={level_5} name="level_5" />
+              </InputGroup>
+            </Col>
+          </Row>
+        <Row>
+            <Col xs="12">
+              <InputGroup className="mb-3">
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="icon-info"></i>
+                        </InputGroupText>
+                      </InputGroupAddon>
+                      <Input type="text" onChange={this.handleChange}   name={title} defaultValue={title} name="title"/>
+              </InputGroup>
+            </Col>
+          </Row>
+          <Row>
+            <Col xs="12">
+              <InputGroup className="mb-3">
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="cui-comment-square"></i>
+                        </InputGroupText>
+                      </InputGroupAddon>
+                      <Input type="text" onChange={this.handleChange}   name={description} defaultValue={description} name="description"   />
+              </InputGroup>
+            </Col>
+          </Row>
+          <Row>
+            <Col xs="12">
+              <InputGroup className="mb-3">
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="cui-british-pound"></i>
+                        </InputGroupText>
+                      </InputGroupAddon>
+                      <Input type="text" onChange={this.handleChange} name={price} defaultValue={price} name="price" />
+              </InputGroup>
+            </Col>
+          </Row>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="info"><i className="icon-plus" /> Add New KBLI</Button>
+          </ModalFooter>
+          </Form>
+        </Modal>
       </div>
     )
   }
