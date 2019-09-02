@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Card, CardBody, CardHeader, Col, Row , Alert, Label ,Form ,  Input, InputGroup , InputGroupAddon , InputGroupText , Modal, ModalHeader, ModalBody, ModalFooter , Button} from 'reactstrap';
 import Select from 'react-select';
+import CreatableSelect from 'react-select/creatable';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
 import 'react-bootstrap-table/dist/react-bootstrap-table.min.css';
 import { connect } from 'react-redux';
@@ -9,6 +10,22 @@ import { toRomawiString } from '../../utils/Helper';
 import { actionCheckExpired } from '../../utils/Action';
 import { Data } from '../../utils/Data';
 import { Redirect } from 'react-router-dom';
+
+type State = {
+  options: [{ [string]: string }],
+  value: string | void,
+};
+
+const createOption = (label: string) => ({
+  label,
+  value: label.toLowerCase().replace(/\W/g, ''),
+});
+
+const defaultOptions = [
+  createOption('One'),
+  createOption('Two'),
+  createOption('Three'),
+];
 
 class Kbli extends Component {
  constructor(props) {
@@ -24,6 +41,9 @@ class Kbli extends Component {
         selectedOption: null,
         selectedOptionValue: [],
         selectOptionYear : [],
+        isLoading: false,
+        optionsSelect: defaultOptions,
+        value: undefined,
         form : {
             level_1 : '',
             level_2 : '',
@@ -75,6 +95,30 @@ class Kbli extends Component {
     })
   }
 
+  handleSelect = (newValue: any, actionMeta: any) => {
+    console.group('Value Changed');
+    console.log(newValue);
+    console.log(`action: ${actionMeta.action}`);
+    console.groupEnd();
+    this.setState({ value: newValue });
+  };
+
+  handleCreateSelect = (inputValue: any) => {
+    this.setState({ isLoading: true });
+    console.group('Option created');
+    console.log('Wait a moment...');
+    setTimeout(() => {
+      const { optionsSelect } = this.state;
+      const newOption = createOption(inputValue);
+      console.log(newOption);
+      console.groupEnd();
+      this.setState({
+        isLoading: false,
+        optionsSelect: [...optionsSelect, newOption],
+        value: newOption,
+      });
+    }, 1000);
+  };
 
   handleSubmit = (e) => {
     e.preventDefault()
@@ -98,7 +142,7 @@ class Kbli extends Component {
   }
   onDeleteCell = async (row) => {
    row.map((k,i) => {
-      return deleteData('user',{ data: {id : k} })
+      return deleteData('kbli',{ data: {id : k} })
       .then(result => result)
       .catch(err => console.log(err))
    })
@@ -208,13 +252,15 @@ class Kbli extends Component {
     })
     .catch(err => console.log(err));
   }
+  // postingDataAPI('kbliByLevel').then(result => console.log(result))
  }
 
   render() {
     const { cellEditProp , data , 
             postData , 
             tableComponent , 
-            selectedOption , selectedOptionValue, form , year
+            selectedOption , selectedOptionValue, form , year,
+            isLoading, optionsSelect, value
           } = this.state
     const { level_5, level_4 , level_3 , level_2 , level_1 , price , description, title } = form
     const formComponent = Object.keys(form)
@@ -297,57 +343,84 @@ class Kbli extends Component {
                     </Alert>
             }
             <Row>
-              <Col xs="4">
-                <InputGroup className="mb-3">
-                        <InputGroupAddon addonType="prepend">
-                          <InputGroupText>
-                            <i className="icon-options"></i>
-                          </InputGroupText>
-                        </InputGroupAddon>
-                        <Input type="text" onChange={this.handleChange}  placeholder="level 1" name={level_1} defaultValue={level_1} name="level_1"  />
-                </InputGroup>
-              </Col>
-              <Col xs="4">
-                  <InputGroup className="mb-3">
-                        <InputGroupAddon addonType="prepend">
-                          <InputGroupText>
-                            <i className="icon-options"></i>
-                          </InputGroupText>
-                        </InputGroupAddon>
-                        <Input type="text" onChange={this.handleChange}   name={level_2} defaultValue={level_2} name="level_2" />
-                </InputGroup>
-              </Col>
-              <Col xs="4">
-                <InputGroup className="mb-3">
-                        <InputGroupAddon addonType="prepend">
-                          <InputGroupText>
-                            <i className="icon-options"></i>
-                          </InputGroupText>
-                        </InputGroupAddon>
-                        <Input type="text" onChange={this.handleChange}   name={level_3} defaultValue={level_3} name="level_3" />
-                </InputGroup>
+              <Col xs="12">
+                  <div className='form-group'>
+                    <CreatableSelect
+                      isClearable
+                      isDisabled={isLoading}
+                      isLoading={isLoading}
+                      onChange={this.handleSelect}
+                      onCreateOption={this.handleCreate}
+                      options={optionsSelect}
+                      placeholder = "Level 1"
+                      value={value}
+                    />
+                </div>
+
               </Col>
             </Row>
             <Row>
-              <Col xs="4">
-                <InputGroup className="mb-3">
-                        <InputGroupAddon addonType="prepend">
-                          <InputGroupText>
-                            <i className="icon-options"></i>
-                          </InputGroupText>
-                        </InputGroupAddon>
-                        <Input type="text" onChange={this.handleChange}   name={level_4} defaultValue={level_4} name="level_4" />
-                </InputGroup>
+              <Col xs="12">
+                  <div className='form-group'>
+                    <CreatableSelect
+                      isClearable
+                      isDisabled={isLoading}
+                      isLoading={isLoading}
+                      onChange={this.handleSelect}
+                      onCreateOption={this.handleCreate}
+                      options={optionsSelect}
+                      placeholder = "Level 2"
+                      value={value}
+                    />
+                </div>
               </Col>
-              <Col xs="4">
-                  <InputGroup className="mb-3">
-                        <InputGroupAddon addonType="prepend">
-                          <InputGroupText>
-                            <i className="icon-options"></i>
-                          </InputGroupText>
-                        </InputGroupAddon>
-                        <Input type="text" onChange={this.handleChange}   name={level_5}  defaultValue={level_5} name="level_5" />
-                </InputGroup>
+            </Row>
+            <Row>
+              <Col xs="12">
+                  <div className='form-group'>
+                    <CreatableSelect
+                      isClearable
+                      isDisabled={isLoading}
+                      isLoading={isLoading}
+                      onChange={this.handleSelect}
+                      onCreateOption={this.handleCreate}
+                      options={optionsSelect}
+                      placeholder = "Level 3"
+                      value={value}
+                    />
+                </div>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs="12">
+                  <div className='form-group'>
+                    <CreatableSelect
+                      isClearable
+                      isDisabled={isLoading}
+                      isLoading={isLoading}
+                      onChange={this.handleSelect}
+                      onCreateOption={this.handleCreate}
+                      options={optionsSelect}
+                      placeholder = "Level 4"
+                      value={value}
+                    />
+                </div>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs="12">
+                  <div className='form-group'>
+                    <CreatableSelect
+                      isClearable
+                      isDisabled={isLoading}
+                      isLoading={isLoading}
+                      onChange={this.handleSelect}
+                      onCreateOption={this.handleCreate}
+                      options={optionsSelect}
+                      placeholder = "Level 5"
+                      value={value}
+                    />
+                </div>
               </Col>
             </Row>
             <Row>
@@ -358,7 +431,7 @@ class Kbli extends Component {
                             <i className="icon-info"></i>
                           </InputGroupText>
                         </InputGroupAddon>
-                        <Input type="text" onChange={this.handleChange}   name={title} defaultValue={title} name="title"/>
+                        <Input type="text" onChange={this.handleChange}  placeholder="Title" name={title} defaultValue={title} name="title"/>
                 </InputGroup>
               </Col>
             </Row>
@@ -370,19 +443,7 @@ class Kbli extends Component {
                             <i className="cui-comment-square"></i>
                           </InputGroupText>
                         </InputGroupAddon>
-                        <Input type="text" onChange={this.handleChange}   name={description} defaultValue={description} name="description"   />
-                </InputGroup>
-              </Col>
-            </Row>
-            <Row>
-              <Col xs="12">
-                <InputGroup className="mb-3">
-                        <InputGroupAddon addonType="prepend">
-                          <InputGroupText>
-                            <i className="cui-british-pound"></i>
-                          </InputGroupText>
-                        </InputGroupAddon>
-                        <Input type="text" onChange={this.handleChange} name={price} defaultValue={price} name="price" />
+                        <Input type="text" onChange={this.handleChange}  placeholder="Description"  name={description} defaultValue={description} name="description"   />
                 </InputGroup>
               </Col>
             </Row>
