@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import { fetchingDataAPI , putDataAPI , deleteData , postingDataAPI  } from '../../utils/AxiosMethod';
 import { toRomawiString } from '../../utils/Helper';
 import { actionCheckExpired } from '../../utils/Action';
+import { Data } from '../../utils/Data';
 import { Redirect } from 'react-router-dom';
 
 class Kbli extends Component {
@@ -22,6 +23,7 @@ class Kbli extends Component {
         objectWithMaxProps : [],
         selectedOption: null,
         selectedOptionValue: [],
+        selectOptionYear : [],
         form : {
             level_1 : '',
             level_2 : '',
@@ -32,6 +34,7 @@ class Kbli extends Component {
             description : '',
             title : ''
           },
+        year : '',
         postData : {
           notification : '',
           isFetching : true,
@@ -48,6 +51,7 @@ class Kbli extends Component {
    this.jobStatusValidator = this.jobStatusValidator.bind(this)
    this.onDismiss = this.onDismiss.bind(this)
    this.toggleKbli = this.toggleKbli.bind(this);
+
  }
 
   handleChangeSelectOpt = selectedOption => {
@@ -71,22 +75,27 @@ class Kbli extends Component {
     })
   }
 
+
   handleSubmit = (e) => {
     e.preventDefault()
-    const { form } = this.state
-    postingDataAPI('kbli',form).then(result => {
+    const { form , selectOptionYear } = this.state
+    let { price , ...rest } = form
+    const generateData = Data()
+    const defaultPrice = generateData.map((key,index) => {
+       return {year : key , [`max_price`] : 0 ,[`min_price`] : 0 } 
+    })
+    postingDataAPI('kbli',{...rest , price : JSON.stringify(defaultPrice)}).then(result => {
       if(result.response === 200){
         this.setState({
                  postData : {
                       isFetching : true,
                       status : 'success',
-                      notification : `Success Generate New Password`
+                      notification : `Success action KBLI`
                   }
               })
       }
     }).catch( err => console.log(err))          
   }
-
   onDeleteCell = async (row) => {
    row.map((k,i) => {
       return deleteData('user',{ data: {id : k} })
@@ -152,18 +161,18 @@ class Kbli extends Component {
   this.props.checkToken(token.token)
 }
  componentDidMount(){
+  
   const { isAuthenticated , level } = this.props
   if(isAuthenticated){
-    fetchingDataAPI('kbli').then(result => {
-      let json = [], ObjectLeng = 0, 
+    let json = [], ObjectLeng = 0, 
           indexObject = [], indexWithMaxValue = 0,
-          sop = {} , leng = 0 , objectWithMaxProps = []
+          sop = {} , leng = 0 , objectWithMaxProps = [] , selectOptionYear = []
+    fetchingDataAPI('kbli').then(result => {
       let emptyBracket = result.map(key => {
         const toStringLevel = `${key.level_1}${key.level_2}${key.level_3}${key.level_4}${key.level_5}`
         const toStringSeparate = toRomawiString(toStringLevel)
         return Object.assign(key , {labels : toStringSeparate})
       })
-
       result.map((key,index) => {
         json = JSON.parse(key.price)
         json.map(k => {
@@ -205,11 +214,10 @@ class Kbli extends Component {
     const { cellEditProp , data , 
             postData , 
             tableComponent , 
-            selectedOption , selectedOptionValue, form
+            selectedOption , selectedOptionValue, form , year
           } = this.state
     const { level_5, level_4 , level_3 , level_2 , level_1 , price , description, title } = form
     const formComponent = Object.keys(form)
-    console.log(form)
     const selectRowProp = {
       mode: 'checkbox',
       clickToSelect: true,
@@ -240,7 +248,11 @@ class Kbli extends Component {
 
     return (
       <div className="animated fadeIn">
-      <Button color="success" onClick={ () => this.toggleKbli('s')}><i className="icon-plus"/> Add New KBLI</Button>
+      <Row>
+        <Col xs="2">
+            <Button color="success" onClick={ () => this.toggleKbli('s')}><i className="icon-plus"/> Add KBLI</Button>
+        </Col>
+      </Row> 
       {
         postData.isFetching && <Alert color={postData.status} isOpen={this.state.visible} toggle={this.onDismiss}>
              {postData.notification}
@@ -265,7 +277,7 @@ class Kbli extends Component {
                  {/*<button onClick={this.getSelectedRowKeys.bind(this)}>Get selected row keys</button>*/}
                  <BootstrapTable data={ data } remote={ this.remote } selectRow={ selectRowProp } cellEdit={ cellEditProp } pagination scrollTop={ 'Bottom' } hover condensed striped exportCSV
                    expandableRow={ this.isExpandableRow } expandComponent={ this.expandComponent } options={ options } deleteRow={ true } width="100%" keyField='id_row'>
-                     {
+                    {
                         tableComponent.map((column,index) => {
                           return (<TableHeaderColumn key={index} ref={column} dataField={column} filter={ { type: 'TextFilter' } } headerAlign='center' dataAlign='left'>{column}</TableHeaderColumn>);
                         })
@@ -284,96 +296,96 @@ class Kbli extends Component {
                      {postData.notification}
                     </Alert>
             }
-          <Row>
-            <Col xs="4">
-              <InputGroup className="mb-3">
-                      <InputGroupAddon addonType="prepend">
-                        <InputGroupText>
-                          <i className="icon-options"></i>
-                        </InputGroupText>
-                      </InputGroupAddon>
-                      <Input type="text" onChange={this.handleChange}  placeholder="level 1" name={level_1} defaultValue={level_1} name="level_1"  />
-              </InputGroup>
-            </Col>
-            <Col xs="4">
+            <Row>
+              <Col xs="4">
                 <InputGroup className="mb-3">
-                      <InputGroupAddon addonType="prepend">
-                        <InputGroupText>
-                          <i className="icon-options"></i>
-                        </InputGroupText>
-                      </InputGroupAddon>
-                      <Input type="text" onChange={this.handleChange}   name={level_2} defaultValue={level_2} name="level_2" />
-              </InputGroup>
-            </Col>
-            <Col xs="4">
-              <InputGroup className="mb-3">
-                      <InputGroupAddon addonType="prepend">
-                        <InputGroupText>
-                          <i className="icon-options"></i>
-                        </InputGroupText>
-                      </InputGroupAddon>
-                      <Input type="text" onChange={this.handleChange}   name={level_3} defaultValue={level_3} name="level_3" />
-              </InputGroup>
-            </Col>
-          </Row>
-          <Row>
-            <Col xs="4">
-              <InputGroup className="mb-3">
-                      <InputGroupAddon addonType="prepend">
-                        <InputGroupText>
-                          <i className="icon-options"></i>
-                        </InputGroupText>
-                      </InputGroupAddon>
-                      <Input type="text" onChange={this.handleChange}   name={level_4} defaultValue={level_4} name="level_4" />
-              </InputGroup>
-            </Col>
-            <Col xs="4">
+                        <InputGroupAddon addonType="prepend">
+                          <InputGroupText>
+                            <i className="icon-options"></i>
+                          </InputGroupText>
+                        </InputGroupAddon>
+                        <Input type="text" onChange={this.handleChange}  placeholder="level 1" name={level_1} defaultValue={level_1} name="level_1"  />
+                </InputGroup>
+              </Col>
+              <Col xs="4">
+                  <InputGroup className="mb-3">
+                        <InputGroupAddon addonType="prepend">
+                          <InputGroupText>
+                            <i className="icon-options"></i>
+                          </InputGroupText>
+                        </InputGroupAddon>
+                        <Input type="text" onChange={this.handleChange}   name={level_2} defaultValue={level_2} name="level_2" />
+                </InputGroup>
+              </Col>
+              <Col xs="4">
                 <InputGroup className="mb-3">
-                      <InputGroupAddon addonType="prepend">
-                        <InputGroupText>
-                          <i className="icon-options"></i>
-                        </InputGroupText>
-                      </InputGroupAddon>
-                      <Input type="text" onChange={this.handleChange}   name={level_5}  defaultValue={level_5} name="level_5" />
-              </InputGroup>
-            </Col>
-          </Row>
-        <Row>
-            <Col xs="12">
-              <InputGroup className="mb-3">
-                      <InputGroupAddon addonType="prepend">
-                        <InputGroupText>
-                          <i className="icon-info"></i>
-                        </InputGroupText>
-                      </InputGroupAddon>
-                      <Input type="text" onChange={this.handleChange}   name={title} defaultValue={title} name="title"/>
-              </InputGroup>
-            </Col>
-          </Row>
-          <Row>
-            <Col xs="12">
-              <InputGroup className="mb-3">
-                      <InputGroupAddon addonType="prepend">
-                        <InputGroupText>
-                          <i className="cui-comment-square"></i>
-                        </InputGroupText>
-                      </InputGroupAddon>
-                      <Input type="text" onChange={this.handleChange}   name={description} defaultValue={description} name="description"   />
-              </InputGroup>
-            </Col>
-          </Row>
-          <Row>
-            <Col xs="12">
-              <InputGroup className="mb-3">
-                      <InputGroupAddon addonType="prepend">
-                        <InputGroupText>
-                          <i className="cui-british-pound"></i>
-                        </InputGroupText>
-                      </InputGroupAddon>
-                      <Input type="text" onChange={this.handleChange} name={price} defaultValue={price} name="price" />
-              </InputGroup>
-            </Col>
-          </Row>
+                        <InputGroupAddon addonType="prepend">
+                          <InputGroupText>
+                            <i className="icon-options"></i>
+                          </InputGroupText>
+                        </InputGroupAddon>
+                        <Input type="text" onChange={this.handleChange}   name={level_3} defaultValue={level_3} name="level_3" />
+                </InputGroup>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs="4">
+                <InputGroup className="mb-3">
+                        <InputGroupAddon addonType="prepend">
+                          <InputGroupText>
+                            <i className="icon-options"></i>
+                          </InputGroupText>
+                        </InputGroupAddon>
+                        <Input type="text" onChange={this.handleChange}   name={level_4} defaultValue={level_4} name="level_4" />
+                </InputGroup>
+              </Col>
+              <Col xs="4">
+                  <InputGroup className="mb-3">
+                        <InputGroupAddon addonType="prepend">
+                          <InputGroupText>
+                            <i className="icon-options"></i>
+                          </InputGroupText>
+                        </InputGroupAddon>
+                        <Input type="text" onChange={this.handleChange}   name={level_5}  defaultValue={level_5} name="level_5" />
+                </InputGroup>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs="12">
+                <InputGroup className="mb-3">
+                        <InputGroupAddon addonType="prepend">
+                          <InputGroupText>
+                            <i className="icon-info"></i>
+                          </InputGroupText>
+                        </InputGroupAddon>
+                        <Input type="text" onChange={this.handleChange}   name={title} defaultValue={title} name="title"/>
+                </InputGroup>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs="12">
+                <InputGroup className="mb-3">
+                        <InputGroupAddon addonType="prepend">
+                          <InputGroupText>
+                            <i className="cui-comment-square"></i>
+                          </InputGroupText>
+                        </InputGroupAddon>
+                        <Input type="text" onChange={this.handleChange}   name={description} defaultValue={description} name="description"   />
+                </InputGroup>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs="12">
+                <InputGroup className="mb-3">
+                        <InputGroupAddon addonType="prepend">
+                          <InputGroupText>
+                            <i className="cui-british-pound"></i>
+                          </InputGroupText>
+                        </InputGroupAddon>
+                        <Input type="text" onChange={this.handleChange} name={price} defaultValue={price} name="price" />
+                </InputGroup>
+              </Col>
+            </Row>
           </ModalBody>
           <ModalFooter>
             <Button color="info"><i className="icon-plus" /> Add New KBLI</Button>
