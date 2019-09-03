@@ -21,6 +21,7 @@ const createOption = (label: string, value) => ({
   value: value,
 });
 
+
 const defaultOptions = [
   createOption('One'),
   createOption('Two'),
@@ -52,12 +53,14 @@ class Kbli extends Component {
         selectedValueLevelTwo : undefined,
         selectedValueLevelThree : undefined,
         selectedValueLevelFour : undefined,
+        levelTitle : '' ,
+        generatePrice : [],
         form : {
             level_1 : '',
             level_2 : '',
             level_3 : '',
             level_4 : '',
-            level_5 : '',
+            level_5 : 9,
             price : '',
             description : '',
             title : ''
@@ -111,12 +114,14 @@ class Kbli extends Component {
           })
           this.setState({
             selectedOptionLevelTwo,
-            selectedValueLevelOne : newValue
+            levelTitle : newValue.value,
+            selectedValueLevelOne : newValue,
+            form : { ...this.state.form , level_1 : newValue.value }
           })
       }
     )
-
   };
+
   handleSelectLevelTwo = (newValue: any, actionMeta: any) => {
     //console.log(`action: ${actionMeta.action}`);
     const { selectedValueLevelOne } = this.state 
@@ -125,10 +130,12 @@ class Kbli extends Component {
           const selectedOptionLevelThree= result.data.map((key,index) => {
             return createOption(`${key.level_3} - ${key.title}`, key.level_3)
           })
-          this.setState({
+          this.setState(prevState => ({
             selectedOptionLevelThree,
-            selectedValueLevelTwo : newValue
-          })
+            levelTitle : `${selectedValueLevelOne.value}.${newValue.value}`,
+            selectedValueLevelTwo : newValue,
+            form : { ...this.state.form , level_2 : newValue.value }
+          }));
       }
     )
   };
@@ -141,21 +148,42 @@ class Kbli extends Component {
           const selectedOptionLevelFour= result.data.map((key,index) => {
             return createOption(`${key.level_4} - ${key.title}`, key.level_4)
           })
-          this.setState({
+          this.setState(prevState => ({
             selectedOptionLevelFour,
-            selectedValueLevelThree : newValue
-          })
+            levelTitle : `${selectedValueLevelOne.value}.${selectedValueLevelTwo.value}.${newValue.value}`,
+            selectedValueLevelThree : newValue,
+            form : { ...this.state.form , level_3 : newValue.value }
+          }))
       }
     )
   };
 
-    handleSelect = (newValue: any, actionMeta: any) => {
+  handleSelectLevelFour = (newValue: any, actionMeta: any) => {
+    //console.log(`action: ${actionMeta.action}`);
+    const { selectedValueLevelOne , selectedValueLevelTwo , selectedValueLevelThree } = this.state 
+    postingDataAPI('/kbliByLevel/custom',{ param : 'level_5', level_1 : selectedValueLevelOne.value , level_2 : selectedValueLevelTwo.value, level_3 : selectedValueLevelThree.value, level_5 : 0})
+    .then(result => {
+          const selectedOptionLevelFour= result.data.map((key,index) => {
+            return createOption(`${key.level_4} - ${key.title}`, key.level_4)
+          })
+          this.setState(prevState => ({
+            selectedOptionLevelFour,
+            levelTitle : `${selectedValueLevelOne.value}.${selectedValueLevelTwo.value}.${selectedValueLevelThree.value}.${newValue.value}`,
+            selectedValueLevelFour : newValue,
+            form : { ...this.state.form , level_4 : newValue.value }
+          }))
+      }
+    )
+  };
+
+  handleSelect = (newValue: any, actionMeta: any) => {
     console.group('Value Changed');
     console.log(newValue);
     console.log(`action: ${actionMeta.action}`);
     console.groupEnd();
     this.setState({ value: newValue });
   };
+
   handleCreateSelect = (inputValue: any) => {
     this.setState({ isLoading: true });
     console.group('Option created');
@@ -173,15 +201,52 @@ class Kbli extends Component {
     }, 1000);
   };
 
+  levelOneAdd = (value,inputValue) => {
+    const { generatePrice } = this.state
+    postingDataAPI('kbli',{level_1 : value , level_2 : 0, level_3 : 0 , level_4 : 0, level_5 : 0, title : inputValue , price : JSON.stringify(generatePrice)}).then(result => {
+      if(result.response === 200){
+        this.setState({
+                 postData : {
+                      isFetching : true,
+                      status : 'success',
+                      notification : `Success action KBLI`
+                  }
+              })
+      }
+    }).catch( err => console.log(err))    
+  }
+
+  handleCreateLevelOne = (inputValue: any) => {
+    const { generatePrice , selectedOptionLevelOne } = this.state
+    this.setState({ isLoading: true });
+    console.group('Option created');
+    console.log('Wait a moment...');
+    console.log(selectedOptionLevelOne)
+    postingDataAPI('kblilast', {level_2 : 0, level_3 : 0 , level_4 : 0, level_5 : 0})
+    .then(response => {
+        const numberID = response.data[0].level_1 + 1
+        this.levelOneAdd(numberID,inputValue)
+        return numberID
+    })
+    .catch( err => console.log(err))
+    setTimeout(() => {
+      const { selectedOptionLevelOne } = this.state;
+      const newOption = createOption(inputValue,inputValue);
+      console.log(newOption);
+      console.groupEnd();
+      this.setState({
+        isLoading: false,
+        selectedOptionLevelOne: [...selectedOptionLevelOne, newOption],
+        selectedValueLevelOne: newOption,
+      });
+    }, 1000);
+  };
+
   handleSubmit = (e) => {
     e.preventDefault()
-    const { form , selectOptionYear } = this.state
+    const { form , selectOptionYear , generatePrice } = this.state
     let { price , ...rest } = form
-    const generateData = Data()
-    const defaultPrice = generateData.map((key,index) => {
-       return {year : key , [`max_price`] : 0 ,[`min_price`] : 0 } 
-    })
-    postingDataAPI('kbli',{...rest , price : JSON.stringify(defaultPrice)}).then(result => {
+    postingDataAPI('kbli',{...rest , price : JSON.stringify(generatePrice)}).then(result => {
       if(result.response === 200){
         this.setState({
                  postData : {
@@ -259,6 +324,14 @@ class Kbli extends Component {
 }
  componentDidMount(){
   const { isAuthenticated , level } = this.props
+  const generateData = Data()
+  const defaultPrice = []
+  const generatePrice = generateData.map((key,index) => {
+        defaultPrice.push(createOption(`max_price_${key}`,`max_price_${key}`))
+        defaultPrice.push(createOption(`min_price_${key}`,`min_price_${key}`))
+       return {year : key , [`max_price`] : 0 ,[`min_price`] : 0 } 
+    })
+
   if(isAuthenticated){
     let json = [], ObjectLeng = 0, 
           indexObject = [], indexWithMaxValue = 0,
@@ -295,13 +368,10 @@ class Kbli extends Component {
       return { emptyBracket , indexObject, objectWithMaxProps , dataSecond}
     })
     .then(res => {
-      const selectedOptionValue = res.objectWithMaxProps.map((key,index) => {
-        return createOption(key,key)
-      })
+      const selectedOptionValue = defaultPrice
       const selectedOptionLevelOne = res.dataSecond.map((key,index) => {
         return createOption(`${key.level_1} - ${key.title}`,key.level_1)
       })
-
       let tableComponent = res.indexObject
       this.setState({
         data : res.emptyBracket,
@@ -309,6 +379,7 @@ class Kbli extends Component {
         level,
         selectedOptionValue,
         selectedOptionLevelOne,
+        generatePrice,
         objectWithMaxProps : res.objectWithMaxProps
       })
     })
@@ -327,9 +398,11 @@ class Kbli extends Component {
             selectedOptionLevelOne , selectedValueLevelOne,
             selectedOptionLevelTwo , selectedValueLevelTwo,
             selectedOptionLevelThree , selectedValueLevelThree,
-            selectedOptionLevelFour , selectedValueLevelFour
+            selectedOptionLevelFour , selectedValueLevelFour,
+            levelTitle
           } = this.state
     const { level_5, level_4 , level_3 , level_2 , level_1 , price , description, title } = form
+    console.log(selectedValueLevelOne)
     const formComponent = Object.keys(form)
     const selectRowProp = {
       mode: 'checkbox',
@@ -412,6 +485,11 @@ class Kbli extends Component {
             }
             <Row>
               <Col xs="12">
+               Parameter :  {levelTitle}
+              </Col>
+            </Row>
+            <Row>
+              <Col xs="12">
                   <div className='form-group'>
                     <CreatableSelect
                       isClearable
@@ -438,7 +516,7 @@ class Kbli extends Component {
                       onCreateOption={this.handleCreate}
                       options={selectedOptionLevelTwo}
                       placeholder = "Level 2"
-                      value={value}
+                      value={selectedValueLevelTwo}
                     />
                 </div>
               </Col>
@@ -454,7 +532,7 @@ class Kbli extends Component {
                       onCreateOption={this.handleCreate}
                       options={selectedOptionLevelThree}
                       placeholder = "Level 3"
-                      value={value}
+                      value={selectedValueLevelThree}
                     />
                 </div>
               </Col>
@@ -466,27 +544,11 @@ class Kbli extends Component {
                       isClearable
                       isDisabled={isLoading}
                       isLoading={isLoading}
-                      onChange={this.handleSelect}
+                      onChange={this.handleSelectLevelFour}
                       onCreateOption={this.handleCreate}
                       options={selectedOptionLevelFour}
                       placeholder = "Level 4"
-                      value={value}
-                    />
-                </div>
-              </Col>
-            </Row>
-            <Row>
-              <Col xs="12">
-                  <div className='form-group'>
-                    <CreatableSelect
-                      isClearable
-                      isDisabled={isLoading}
-                      isLoading={isLoading}
-                      onChange={this.handleSelect}
-                      onCreateOption={this.handleCreate}
-                      options={optionsSelect}
-                      placeholder = "Level 5"
-                      value={value}
+                      value={selectedValueLevelFour}
                     />
                 </div>
               </Col>
