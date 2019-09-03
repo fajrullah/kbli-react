@@ -5,7 +5,7 @@ import CreatableSelect from 'react-select/creatable';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
 import 'react-bootstrap-table/dist/react-bootstrap-table.min.css';
 import { connect } from 'react-redux';
-import { fetchingDataAPI , putDataAPI , deleteData , postingDataAPI  } from '../../utils/AxiosMethod';
+import { fetchingDataAPI , putDataAPI , deleteData , postingDataAPI , fetchingMultipleDataAPI  } from '../../utils/AxiosMethod';
 import { toRomawiString } from '../../utils/Helper';
 import { actionCheckExpired } from '../../utils/Action';
 import { Data } from '../../utils/Data';
@@ -16,9 +16,9 @@ type State = {
   value: string | void,
 };
 
-const createOption = (label: string) => ({
+const createOption = (label: string, value) => ({
   label,
-  value: label.toLowerCase().replace(/\W/g, ''),
+  value: value,
 });
 
 const defaultOptions = [
@@ -41,9 +41,11 @@ class Kbli extends Component {
         selectedOption: null,
         selectedOptionValue: [],
         selectOptionYear : [],
+        selectedOptionLevelOne : [],
         isLoading: false,
         optionsSelect: defaultOptions,
         value: undefined,
+        selectedValueLevelOne : undefined,
         form : {
             level_1 : '',
             level_2 : '',
@@ -71,7 +73,6 @@ class Kbli extends Component {
    this.jobStatusValidator = this.jobStatusValidator.bind(this)
    this.onDismiss = this.onDismiss.bind(this)
    this.toggleKbli = this.toggleKbli.bind(this);
-
  }
 
   handleChangeSelectOpt = selectedOption => {
@@ -95,14 +96,36 @@ class Kbli extends Component {
     })
   }
 
-  handleSelect = (newValue: any, actionMeta: any) => {
+  handleSelectLevelOne = (newValue: any, actionMeta: any) => {
+    console.group('Value Changed');
+    console.log(newValue);
+    console.log(`action: ${actionMeta.action}`);
+    console.groupEnd();
+    this.setState({ selectedValueLevelOne : newValue });
+  };
+    handleCreateSelectLevelOne = (inputValue: any) => {
+    this.setState({ isLoading: true });
+    console.group('Option created');
+    console.log('Wait a moment...');
+    setTimeout(() => {
+      const { optionsSelect } = this.state;
+      const newOption = createOption(inputValue);
+      console.log(newOption);
+      console.groupEnd();
+      this.setState({
+        isLoading: false,
+        optionsSelect: [...optionsSelect, newOption],
+        value: newOption,
+      });
+    }, 1000);
+  };
+    handleSelect = (newValue: any, actionMeta: any) => {
     console.group('Value Changed');
     console.log(newValue);
     console.log(`action: ${actionMeta.action}`);
     console.groupEnd();
     this.setState({ value: newValue });
   };
-
   handleCreateSelect = (inputValue: any) => {
     this.setState({ isLoading: true });
     console.group('Option created');
@@ -205,52 +228,62 @@ class Kbli extends Component {
   this.props.checkToken(token.token)
 }
  componentDidMount(){
-  
   const { isAuthenticated , level } = this.props
   if(isAuthenticated){
     let json = [], ObjectLeng = 0, 
           indexObject = [], indexWithMaxValue = 0,
           sop = {} , leng = 0 , objectWithMaxProps = [] , selectOptionYear = []
-    fetchingDataAPI('kbli').then(result => {
-      let emptyBracket = result.map(key => {
+
+    fetchingMultipleDataAPI([`kbli`,`kbliByLevel/one`]).then(result => {
+      const dataFirst = result[0].data
+      const dataSecond = result[1].data
+      let emptyBracket = dataFirst.map(key => {
         const toStringLevel = `${key.level_1}${key.level_2}${key.level_3}${key.level_4}${key.level_5}`
         const toStringSeparate = toRomawiString(toStringLevel)
         return Object.assign(key , {labels : toStringSeparate})
       })
-      result.map((key,index) => {
-        json = JSON.parse(key.price)
-        json.map(k => {
-            return Object.assign(sop, {['max_price_'+k.year] : k.max_price , ['min_price_' + k.year] : k.min_price  })  
-          })
-          if(ObjectLeng >= Object.keys(sop).length){
-            leng = ObjectLeng 
-          }else{
-            indexWithMaxValue = index
-            objectWithMaxProps = Object.keys(sop)
-            leng = Object.keys(sop).length
-          }
-        ObjectLeng = leng
-        return Object.assign(emptyBracket[index],sop)
+
+      dataFirst.map((key,index) => {
+            json = JSON.parse(key.price)
+            json.map(k => {
+                return Object.assign(sop, {['max_price_'+k.year] : k.max_price , ['min_price_' + k.year] : k.min_price  })  
+              })
+              if(ObjectLeng >= Object.keys(sop).length){
+                leng = ObjectLeng 
+              }else{
+                indexWithMaxValue = index
+                objectWithMaxProps = Object.keys(sop)
+                leng = Object.keys(sop).length
+              }
+            ObjectLeng = leng
+            return Object.assign(emptyBracket[index],sop)
       })
+
         indexObject = Object.keys(emptyBracket[indexWithMaxValue]).splice(0,8)
         indexObject.splice( 1, 0, "labels")
-        indexObject.splice( 2, 5); 
-      return { emptyBracket , indexObject, objectWithMaxProps}
+        indexObject.splice( 2, 5);
+      return { emptyBracket , indexObject, objectWithMaxProps , dataSecond}
     })
     .then(res => {
-      const selectedOptionValue = res.objectWithMaxProps.map((k,i) => {
-        return { value : k , label : k}
+      const selectedOptionValue = res.objectWithMaxProps.map((key,index) => {
+        return createOption(key,key)
       })
+      const selectedOptionLevelOne = res.dataSecond.map((key,index) => {
+        return createOption(key.title,key.level_1)
+      })
+
       let tableComponent = res.indexObject
       this.setState({
         data : res.emptyBracket,
         tableComponent,
         level,
         selectedOptionValue,
+        selectedOptionLevelOne,
         objectWithMaxProps : res.objectWithMaxProps
       })
     })
     .catch(err => console.log(err));
+    
   }
   // postingDataAPI('kbliByLevel').then(result => console.log(result))
  }
@@ -260,7 +293,8 @@ class Kbli extends Component {
             postData , 
             tableComponent , 
             selectedOption , selectedOptionValue, form , year,
-            isLoading, optionsSelect, value
+            isLoading, optionsSelect, value,
+            selectedOptionLevelOne , selectedValueLevelOne
           } = this.state
     const { level_5, level_4 , level_3 , level_2 , level_1 , price , description, title } = form
     const formComponent = Object.keys(form)
@@ -317,6 +351,7 @@ class Kbli extends Component {
                     onChange={this.handleChangeSelectOpt}
                     options={selectedOptionValue}
                     isSearchable = {true}
+                    placeholder = "Select ..."
                     isMulti={true}
                   />
                 </div>
@@ -349,11 +384,11 @@ class Kbli extends Component {
                       isClearable
                       isDisabled={isLoading}
                       isLoading={isLoading}
-                      onChange={this.handleSelect}
-                      onCreateOption={this.handleCreate}
-                      options={optionsSelect}
+                      onChange={this.handleSelectLevelOne}
+                      onCreateOption={this.handleCreateLevelOne}
+                      options={selectedOptionLevelOne}
                       placeholder = "Level 1"
-                      value={value}
+                      value={selectedValueLevelOne}
                     />
                 </div>
 
