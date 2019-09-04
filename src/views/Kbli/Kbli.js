@@ -201,9 +201,9 @@ class Kbli extends Component {
     }, 1000);
   };
 
-  levelOneAdd = (value,inputValue) => {
+  addBySelectOption = (obj) => {
     const { generatePrice } = this.state
-    postingDataAPI('kbli',{level_1 : value , level_2 : 0, level_3 : 0 , level_4 : 0, level_5 : 0, title : inputValue , price : JSON.stringify(generatePrice)}).then(result => {
+    postingDataAPI('kbli',{...obj, price : JSON.stringify(generatePrice)}).then(result => {
       if(result.response === 200){
         this.setState({
                  postData : {
@@ -224,9 +224,11 @@ class Kbli extends Component {
     console.log(selectedOptionLevelOne)
     postingDataAPI('kblilast', {level_2 : 0, level_3 : 0 , level_4 : 0, level_5 : 0})
     .then(response => {
-        const numberID = response.data[0].level_1 + 1
-        this.levelOneAdd(numberID,inputValue)
-        return numberID
+        if(response.response === 200){
+            const numberID = response.data[0].level_1 + 1
+            this.addBySelectOption({level_1 : numberID , level_2 : 0, level_3 : 0 , level_4 : 0, level_5 : 0, title : inputValue})
+            return numberID
+          }
     })
     .catch( err => console.log(err))
     setTimeout(() => {
@@ -241,6 +243,34 @@ class Kbli extends Component {
       });
     }, 1000);
   };
+
+  handleCreateLevelTwo = (inputValue: any) => {
+    const { generatePrice , selectedOptionLevelTwo , selectedValueLevelOne } = this.state
+    console.log(selectedValueLevelOne);
+    this.setState({ isLoading: true });
+    console.group('Option created');
+    console.log('Wait a moment...');
+    postingDataAPI('kblilasttwo', {level_1 : selectedValueLevelOne.value  , level_3 : 0 , level_4 : 0, level_5 : 0})
+    .then(response => {
+        if(response.response === 200){
+            const numberID = response.data[0].level_2 + 1
+            this.addBySelectOption({level_1 : selectedValueLevelOne.value , level_2 : numberID, level_3 : 0 , level_4 : 0, level_5 : 0, title : inputValue})
+            return numberID
+          }
+    })
+    .catch( err => console.log(err))
+    setTimeout(() => {
+      const newOption = createOption(inputValue,inputValue);
+      console.log(newOption);
+      console.groupEnd();
+      this.setState({
+        isLoading: false,
+        selectedOptionLevelTwo: [...selectedOptionLevelTwo, newOption],
+        selectedValueLevelTwo: newOption,
+      });
+    }, 1000);
+  };
+
 
   handleSubmit = (e) => {
     e.preventDefault()
@@ -513,7 +543,7 @@ class Kbli extends Component {
                       isDisabled={isLoading}
                       isLoading={isLoading}
                       onChange={this.handleSelectLevelTwo}
-                      onCreateOption={this.handleCreate}
+                      onCreateOption={this.handleCreateLevelTwo}
                       options={selectedOptionLevelTwo}
                       placeholder = "Level 2"
                       value={selectedValueLevelTwo}
