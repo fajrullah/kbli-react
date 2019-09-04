@@ -60,7 +60,7 @@ class Kbli extends Component {
             level_2 : '',
             level_3 : '',
             level_4 : '',
-            level_5 : 9,
+            level_5 : '',
             price : '',
             description : '',
             title : ''
@@ -250,25 +250,32 @@ class Kbli extends Component {
     this.setState({ isLoading: true });
     console.group('Option created');
     console.log('Wait a moment...');
-    postingDataAPI('kblilasttwo', {level_1 : selectedValueLevelOne.value  , level_3 : 0 , level_4 : 0, level_5 : 0})
-    .then(response => {
-        if(response.response === 200){
-            const numberID = response.data[0].level_2 + 1
-            this.addBySelectOption({level_1 : selectedValueLevelOne.value , level_2 : numberID, level_3 : 0 , level_4 : 0, level_5 : 0, title : inputValue})
-            return numberID
-          }
-    })
-    .catch( err => console.log(err))
-    setTimeout(() => {
-      const newOption = createOption(inputValue,inputValue);
-      console.log(newOption);
-      console.groupEnd();
-      this.setState({
-        isLoading: false,
-        selectedOptionLevelTwo: [...selectedOptionLevelTwo, newOption],
-        selectedValueLevelTwo: newOption,
-      });
-    }, 1000);
+    if(selectedValueLevelOne !== undefined){
+      postingDataAPI('kblilasttwo', {level_1 : selectedValueLevelOne.value  , level_3 : 0 , level_4 : 0, level_5 : 0})
+      .then(response => {
+          if(response.response === 200){
+              const numberID = response.data[0].level_2 + 1
+              this.addBySelectOption({level_1 : selectedValueLevelOne.value , level_2 : numberID, level_3 : 0 , level_4 : 0, level_5 : 0, title : inputValue})
+              return numberID
+            }
+      })
+      .catch( err => console.log(err))
+      setTimeout(() => {
+        const newOption = createOption(inputValue,inputValue);
+        console.log(newOption);
+        console.groupEnd();
+        this.setState({
+          isLoading: false,
+          selectedOptionLevelTwo: [...selectedOptionLevelTwo, newOption],
+          selectedValueLevelTwo: newOption,
+        });
+      }, 1000);
+    }else{
+        this.setState({
+          isLoading: false,
+        });
+    }
+
   };
 
   handleCreateLevelThree = (inputValue: any) => {
@@ -277,44 +284,86 @@ class Kbli extends Component {
     this.setState({ isLoading: true });
     console.group('Option created');
     console.log('Wait a moment...');
+    if(selectedValueLevelOne !== undefined && selectedValueLevelTwo !== undefined){
     postingDataAPI('kblilastthree', {level_1 : selectedValueLevelOne.value  , level_2 : selectedValueLevelTwo.value , level_4 : 0, level_5 : 0})
-    .then(response => {
-        if(response.response === 200){
-            const numberID = response.data[0].level_3 + 1
-            this.addBySelectOption({level_1 : selectedValueLevelOne.value , level_2 : selectedValueLevelTwo.value , level_3 : numberID , level_4 : 0, level_5 : 0, title : inputValue})
-            return numberID
-          }
-    })
-    .catch( err => console.log(err))
-    setTimeout(() => {
-      const newOption = createOption(inputValue,inputValue);
-      console.log(newOption);
-      console.groupEnd();
-      this.setState({
-        isLoading: false,
-        selectedOptionLevelThree: [...selectedOptionLevelThree, newOption],
-        selectedValueLevelThree: newOption,
-      });
+      .then(response => {
+          if(response.response === 200){
+              const numberID = response.data[0].level_3 + 1
+              this.addBySelectOption({level_1 : selectedValueLevelOne.value , level_2 : selectedValueLevelTwo.value , level_3 : numberID , level_4 : 0, level_5 : 0, title : inputValue})
+              return numberID
+            }
+      })
+      .catch( err => console.log(err))
+      setTimeout(() => {
+        const newOption = createOption(inputValue,inputValue);
+        console.log(newOption);
+        console.groupEnd();
+        this.setState({
+          isLoading: false,
+          selectedOptionLevelThree: [...selectedOptionLevelThree, newOption],
+          selectedValueLevelThree: newOption,
+          });
     }, 1000);
+    }else{
+        this.setState({
+          isLoading: false,
+        });
+    }
+  };
+
+  handleCreateLevelFour = (inputValue: any) => {
+    const { generatePrice , selectedValueLevelTwo , selectedValueLevelOne , selectedValueLevelThree , selectedOptionLevelFour } = this.state
+    console.log(selectedValueLevelOne);
+    this.setState({ isLoading: true });
+    console.group('Option created');
+    console.log('Wait a moment...');
+    if(selectedValueLevelOne !== undefined && selectedValueLevelTwo !== undefined && selectedValueLevelThree != undefined){
+    postingDataAPI('kblilastfour', {level_1 : selectedValueLevelOne.value  , level_2 : selectedValueLevelTwo.value , level_3 : selectedValueLevelThree.value, level_5 : 0})
+      .then(response => {
+          if(response.response === 200){
+              const numberID = response.data[0].level_4 + 1
+              this.addBySelectOption({level_1 : selectedValueLevelOne.value , level_2 : selectedValueLevelTwo.value , level_3 : selectedValueLevelThree.value , level_4 : numberID, level_5 : 0, title : inputValue})
+              return numberID
+            }
+      })
+      .catch( err => console.log(err))
+      setTimeout(() => {
+        const newOption = createOption(inputValue,inputValue);
+        console.log(newOption);
+        console.groupEnd();
+        this.setState({
+          isLoading: false,
+          selectedOptionLevelFour: [...selectedOptionLevelFour, newOption],
+          selectedValueLevelFour: newOption,
+          });
+    }, 1000);
+    }else{
+        this.setState({
+          isLoading: false,
+        });
+    }
   };
 
 
   handleSubmit = (e) => {
     e.preventDefault()
-    const { form , selectOptionYear , generatePrice } = this.state
-    let { price , ...rest } = form
-    postingDataAPI('kbli',{...rest , price : JSON.stringify(generatePrice)}).then(result => {
-      if(result.response === 200){
-        this.setState({
-                 postData : {
-                      isFetching : true,
-                      status : 'success',
-                      notification : `Success action KBLI`
-                  }
-              })
-      }
-    }).catch( err => console.log(err))          
+    const { form , selectOptionYear , generatePrice , 
+      selectedValueLevelFour , selectedValueLevelThree , 
+      selectedValueLevelTwo ,selectedValueLevelOne } = this.state
+    let { price , level_5 , ...rest } = form
+    if(selectedValueLevelFour !== undefined && selectedValueLevelThree !== undefined && selectedValueLevelTwo !== undefined && selectedValueLevelOne !== undefined){
+      postingDataAPI('kblilastfive', {level_1 : selectedValueLevelOne.value  , level_2 : selectedValueLevelTwo.value , level_4 : selectedValueLevelFour.value})
+        .then(response => {
+            if(response.response === 200){
+                const numberID = response.data[0].level_5 + 1
+                this.addBySelectOption({...rest , price : JSON.stringify(generatePrice), level_5 : numberID})
+                return numberID
+              }
+        })
+        .catch( err => console.log(err))     
+    }     
   }
+
   onDeleteCell = async (row) => {
    row.map((k,i) => {
       return deleteData('kbli',{ data: {id : k} })
@@ -602,7 +651,7 @@ class Kbli extends Component {
                       isDisabled={isLoading}
                       isLoading={isLoading}
                       onChange={this.handleSelectLevelFour}
-                      onCreateOption={this.handleCreate}
+                      onCreateOption={this.handleCreateLevelFour}
                       options={selectedOptionLevelFour}
                       placeholder = "Level 4"
                       value={selectedValueLevelFour}
