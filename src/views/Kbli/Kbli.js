@@ -271,6 +271,33 @@ class Kbli extends Component {
     }, 1000);
   };
 
+  handleCreateLevelThree = (inputValue: any) => {
+    const { generatePrice , selectedValueLevelTwo , selectedValueLevelOne , selectedOptionLevelThree } = this.state
+    console.log(selectedValueLevelOne);
+    this.setState({ isLoading: true });
+    console.group('Option created');
+    console.log('Wait a moment...');
+    postingDataAPI('kblilastthree', {level_1 : selectedValueLevelOne.value  , level_2 : selectedValueLevelTwo.value , level_4 : 0, level_5 : 0})
+    .then(response => {
+        if(response.response === 200){
+            const numberID = response.data[0].level_3 + 1
+            this.addBySelectOption({level_1 : selectedValueLevelOne.value , level_2 : selectedValueLevelTwo.value , level_3 : numberID , level_4 : 0, level_5 : 0, title : inputValue})
+            return numberID
+          }
+    })
+    .catch( err => console.log(err))
+    setTimeout(() => {
+      const newOption = createOption(inputValue,inputValue);
+      console.log(newOption);
+      console.groupEnd();
+      this.setState({
+        isLoading: false,
+        selectedOptionLevelThree: [...selectedOptionLevelThree, newOption],
+        selectedValueLevelThree: newOption,
+      });
+    }, 1000);
+  };
+
 
   handleSubmit = (e) => {
     e.preventDefault()
@@ -559,7 +586,7 @@ class Kbli extends Component {
                       isDisabled={isLoading}
                       isLoading={isLoading}
                       onChange={this.handleSelectLevelThree}
-                      onCreateOption={this.handleCreate}
+                      onCreateOption={this.handleCreateLevelThree}
                       options={selectedOptionLevelThree}
                       placeholder = "Level 3"
                       value={selectedValueLevelThree}
