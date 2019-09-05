@@ -10,8 +10,69 @@ import { fetchingDataAPI , putDataAPI , deleteData , postingDataAPI } from '../.
 import { toDateTimeLocal, toDateTimeLocalDB } from '../../utils/Helper';
 import { actionCheckExpired , deleteUser, deleteToken, setAuthenticated  } from '../../utils/Action';
 import { Redirect } from 'react-router-dom';
+import Chart from 'react-apexcharts'
 let contentData = []
 const CryptoJS = require("crypto-js");
+  function generateDayWiseTimeSeries(baseval, count, yrange) {
+      var i = 0;
+      var series = [];
+      while (i < count) {
+        var x = baseval;
+        var y = Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min;
+
+        series.push([x, y]);
+        baseval += 86400000;
+        i++;
+      }
+      return series;
+    }
+
+    // The global window.Apex variable below can be used to set common options for all charts on the page
+const Apex = {
+      dataLabels: {
+        enabled: false
+      },
+      stroke: {
+        curve: 'straight'
+      },
+      toolbar: {
+        tools: {
+          selection: false
+        }
+      },
+      markers: {
+        size: 6,
+        hover: {
+          size: 10
+        }
+      },
+      tooltip: {
+        followCursor: false,
+        theme: 'dark',
+        x: {
+          show: false
+        },
+        marker: {
+          show: false
+        },
+        y: {
+          title: {
+            formatter: function () {
+              return ''
+            }
+          }
+        }
+      },
+      grid: {
+        clipMarkers: false
+      },
+      yaxis: {
+        tickAmount: 2
+      },
+      xaxis: {
+        type: 'datetime'
+      },
+    }
 class Graph extends Component {
  constructor(props) {
    super(props);
@@ -39,6 +100,99 @@ class Graph extends Component {
           blurToSave: true,
           afterSaveCell: this.onAfterSaveCell // a hook for after saving cell
         },
+        series1: [{
+          data: generateDayWiseTimeSeries(new Date('11 Feb 2017').getTime(), 20, {
+            min: 10,
+            max: 60
+          })
+        }],
+        series2: [{
+          data: generateDayWiseTimeSeries(new Date('11 Feb 2017').getTime(), 20, {
+            min: 10,
+            max: 30
+          })
+        }],
+        series3: [{
+          data: generateDayWiseTimeSeries(new Date('11 Feb 2017').getTime(), 20, {
+            min: 10,
+            max: 90
+          })
+        }],
+        chartOptionsLine1: {
+          chart: {
+            id: 'fb',
+            group: 'social',
+          },
+          markers: {
+            size: 6
+          },
+          colors: ['#008FFB'],
+        },
+        chartOptionsLine2: {
+          chart: {
+            id: 'tw',
+            group: 'social',
+
+          },
+          colors: ['#546E7A'],
+
+        },
+        chartOptionsArea: {
+          chart: {
+            id: 'yt',
+            group: 'social',
+            type: 'area',
+            toolbar: {
+                show: true
+              },
+            shadow: {
+              enabled: true,
+              color: '#000',
+              top: 18,
+              left: 7,
+              blur: 10,
+              opacity: 1
+            },
+            zoom: {
+              enabled: true
+            }
+          },
+          responsive: [{
+              breakpoint: 480,
+              options: {
+                legend: {
+                  show:true,
+                  position: 'bottom',
+                  offsetX: -10,
+                  // offsetY: 0
+                }
+              }
+            }],
+           fill: {
+              opacity: 1,
+            },
+          colors: ['#00E396'],
+          dataLabels: {
+            enabled: true,
+          },
+          stroke: {
+            curve: 'smooth'
+          },
+          title: {
+            text: 'Average High & Low Temperature',
+            align: 'left'
+          },
+          grid: {
+            borderColor: '#e7e7e7',
+            row: {
+              colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+              opacity: 0.5
+            },
+          },
+          markers: {
+            size: 6
+          }
+        }
    };
    this.onAfterSaveCell = this.onAfterSaveCell.bind(this)
    this.jobStatusValidator = this.jobStatusValidator.bind(this)
@@ -237,7 +391,7 @@ class Graph extends Component {
 
         <Row xs="12" lg="12">
           <Col xs="12" lg="12">
-            <Card>
+                      <Card>
               <CardHeader>
                 <strong><i className="icon-info pr-1"></i>User List</strong>
               </CardHeader>
@@ -255,60 +409,24 @@ class Graph extends Component {
                     </Button>            
                   </DateRangePicker>
                 </div>
-                 {/*<button onClick={this.getSelectedRowKeys.bind(this)}>Get selected row keys</button>*/}
-                 <BootstrapTable data={ data } remote={ this.remote } selectRow={ selectRowProp } cellEdit={ cellEditProp } pagination scrollTop={ 'Bottom' } hover condensed striped exportCSV
-                   expandableRow={ this.isExpandableRow } expandComponent={ this.expandComponent } options={ options } deleteRow={ true } width="100%">
-                  <TableHeaderColumn ref='id' dataField='id' isKey={ true } headerAlign='center'  dataAlign='center' width="50px">ID</TableHeaderColumn>
-                  <TableHeaderColumn ref='first_name' dataField='first_name' filter={ { type: 'TextFilter' } } headerAlign='center' dataAlign='center' width="100px">First Name</TableHeaderColumn>
-                  <TableHeaderColumn ref='last_name' dataField='last_name' filter={ { type: 'TextFilter'} } headerAlign='center' dataAlign='center' width="100px">Last Name</TableHeaderColumn>
-                  <TableHeaderColumn ref='email' dataFormat={ this.emailType } dataField='email' filter={ { type: 'TextFilter' } } headerAlign='center' dataAlign='left'>Email</TableHeaderColumn>
-                  <TableHeaderColumn ref='status' filter={ { type: 'TextFilter' } } dataField='status' dataFormat={ this.statusType } headerAlign='center' dataAlign='center' editable={ { type: 'textarea' , validator: this.jobStatusValidator } } width="80px">Status</TableHeaderColumn>
-                  <TableHeaderColumn ref='level'  dataField='level' dataFormat={ this.levelType } filter={ { type: 'TextFilter' } } headerAlign='center' dataAlign='center' editable={ { type: 'textarea' , validator: this.jobStatusValidator } } width="80px">Level</TableHeaderColumn>
-                  <TableHeaderColumn ref='created' dataField='created' filter={ { type: 'TextFilter' } } dataFormat = {this.createdType} headerAlign='center' dataAlign='left'>Create Time</TableHeaderColumn>
-                </BootstrapTable>
+                  <div id="wrapper">
+                    <div id="chart-line">
+                      <Chart type="line" height="160"  options={this.state.chartOptionsLine1} series={this.state.series1}/>
+                    </div>
+
+                    <div id="chart-line2">
+                      <Chart type="line" height="160"  options={this.state.chartOptionsLine2} series={this.state.series2}/>
+                    </div>
+
+                    <div id="chart-area">
+                      <Chart type="area" height="160"  options={this.state.chartOptionsArea} series={this.state.series3}/>
+                    </div>
+                  </div>
               </CardBody>
             </Card>
+
           </Col>
         </Row>
-        <Modal isOpen={this.state.modal} backdrop={true} toggle={this.togglePassword}>
-          <Form onSubmit={this.handleSubmit}>
-          <ModalHeader toggle={this.togglePassword}> Generate New Password </ModalHeader>
-          <ModalBody>
-            {
-                postData.isFetching && <Alert color={postData.status} isOpen={this.state.visible}>
-                     {postData.notification}
-                    </Alert>
-              }
-            <InputGroup className="mb-3">
-              <InputGroupAddon addonType="prepend">
-                <InputGroupText>
-                  <i className="icon-user"></i>
-                </InputGroupText>
-              </InputGroupAddon>
-              <Input type="email" onChange={this.handleChange}  readOnly name="email" defaultValue={email}/>
-            </InputGroup>
-            <InputGroup className="mb-3">
-              <InputGroupAddon addonType="prepend">
-                <InputGroupText>
-                  <i className="icon-lock"></i>
-                </InputGroupText>
-              </InputGroupAddon>
-              <Input type="password" onChange={this.handleChange} defaultValue={password}  name="password" placeholder="Password" autoComplete="password" />
-            </InputGroup>
-            <InputGroup className="mb-4">
-              <InputGroupAddon addonType="prepend">
-                <InputGroupText>
-                  <i className="icon-lock"></i>
-                </InputGroupText>
-              </InputGroupAddon>
-              <Input type="password" onChange={this.handleChange} defaultValue={re_password} name="re_password" placeholder="Repeat password" autoComplete="new-password" />
-            </InputGroup>
-          </ModalBody>
-          <ModalFooter>
-            <Button color="warning">Generate New Password <i className="icon-lock" /></Button>
-          </ModalFooter>
-          </Form>
-        </Modal>
       </div>
     )
   }
