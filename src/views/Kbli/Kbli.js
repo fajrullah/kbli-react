@@ -194,7 +194,6 @@ class Kbli extends Component {
 
   handleSelect = (newValue: any, actionMeta: any) => {
     console.group('Value Changed');
-    console.log(newValue);
     console.log(`action: ${actionMeta.action}`);
     console.groupEnd();
     this.setState({ value: newValue });
@@ -221,7 +220,6 @@ class Kbli extends Component {
     const { generatePrice } = this.state
     postingDataAPI('kbli',{...obj, price : JSON.stringify(generatePrice)}).then(result => {
       if(result.response === 200){
-        console.log(result.data)
         this.setState({
                  postData : {
                       isFetching : true,
@@ -243,7 +241,6 @@ class Kbli extends Component {
             this.addBySelectOption({level_1 : numberID , level_2 : 0, level_3 : 0 , level_4 : 0, level_5 : 0, title : inputValue})
             setTimeout(() => {
                 const newOption = createOption(`${numberID} - ${inputValue}`,numberID);
-                console.log(newOption);
                 this.setState({
                   isLoading: false,
                   selectedOptionLevelOne: [...selectedOptionLevelOne, newOption],
@@ -268,7 +265,6 @@ class Kbli extends Component {
               this.addBySelectOption({level_1 : selectedValueLevelOne.value , level_2 : numberID, level_3 : 0 , level_4 : 0, level_5 : 0, title : inputValue})
               setTimeout(() => {
                 const newOption = createOption(`${numberID} - ${inputValue}`,numberID);
-                console.log(newOption);
                 this.setState({
                   isLoading: false,
                   selectedOptionLevelTwo: [...selectedOptionLevelTwo, newOption],
@@ -298,7 +294,6 @@ class Kbli extends Component {
               this.addBySelectOption({level_1 : selectedValueLevelOne.value , level_2 : selectedValueLevelTwo.value , level_3 : numberID , level_4 : 0, level_5 : 0, title : inputValue})
               setTimeout(() => {
               const newOption = createOption(`${numberID} - ${inputValue}`,numberID);
-              console.log(newOption);
               this.setState({
                 isLoading: false,
                 selectedOptionLevelThree: [...selectedOptionLevelThree, newOption],
@@ -327,7 +322,6 @@ class Kbli extends Component {
               this.addBySelectOption({level_1 : selectedValueLevelOne.value , level_2 : selectedValueLevelTwo.value , level_3 : selectedValueLevelThree.value , level_4 : numberID, level_5 : 0, title : inputValue})
               setTimeout(() => {
                   const newOption = createOption(`${numberID} - ${inputValue}`,numberID);
-                  console.log(newOption);
                   this.setState({
                     isLoading: false,
                     selectedOptionLevelFour: [...selectedOptionLevelFour, newOption],
@@ -509,7 +503,7 @@ class Kbli extends Component {
             levelTitle
           } = this.state
     const { level_5, level_4 , level_3 , level_2 , level_1 , price , description, title } = form
-    console.log(selectedValueLevelOne)
+
     const formComponent = Object.keys(form)
     const selectRowProp = {
       mode: 'checkbox',
