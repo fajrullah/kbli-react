@@ -13,7 +13,7 @@ import { Redirect } from 'react-router-dom';
 import Chart from 'react-apexcharts'
 let contentData = []
 const CryptoJS = require("crypto-js");
-  function generateDayWiseTimeSeries(baseval, count, yrange) {
+function generateDayWiseTimeSeries(baseval, count, yrange) {
       var i = 0;
       var series = [];
       while (i < count) {
@@ -84,11 +84,6 @@ class Graph extends Component {
         modal: false,
         token : '',
         level : '',
-        form : {
-            password : '',
-            re_password : '',
-            email : '',
-          },
         postData : {
           notification : '',
           isFetching : true,
@@ -100,43 +95,13 @@ class Graph extends Component {
           blurToSave: true,
           afterSaveCell: this.onAfterSaveCell // a hook for after saving cell
         },
-        series1: [{
-          data: generateDayWiseTimeSeries(new Date('11 Feb 2017').getTime(), 20, {
-            min: 10,
-            max: 60
-          })
-        }],
-        series2: [{
-          data: generateDayWiseTimeSeries(new Date('11 Feb 2017').getTime(), 20, {
-            min: 10,
-            max: 30
-          })
-        }],
         series3: [{
-          data: generateDayWiseTimeSeries(new Date('11 Feb 2017').getTime(), 20, {
-            min: 10,
-            max: 90
-          })
+          name: "Max Price",
+          data: [12,20,420,102,22,402]
+        },{
+          name: "Min Price",
+          data: [10,20,40,102,203,402]
         }],
-        chartOptionsLine1: {
-          chart: {
-            id: 'fb',
-            group: 'social',
-          },
-          markers: {
-            size: 6
-          },
-          colors: ['#008FFB'],
-        },
-        chartOptionsLine2: {
-          chart: {
-            id: 'tw',
-            group: 'social',
-
-          },
-          colors: ['#546E7A'],
-
-        },
         chartOptionsArea: {
           chart: {
             id: 'yt',
@@ -171,15 +136,15 @@ class Graph extends Component {
            fill: {
               opacity: 1,
             },
-          colors: ['#00E396'],
+          colors: ['#00E396','#545454'],
           dataLabels: {
-            enabled: true,
+              enabled: true,
           },
           stroke: {
             curve: 'smooth'
           },
           title: {
-            text: 'Average High & Low Temperature',
+            text: 'Klasifikasi Baku Lapangan Usaha Indonesia',
             align: 'left'
           },
           grid: {
@@ -191,90 +156,26 @@ class Graph extends Component {
           },
           markers: {
             size: 6
-          }
+          },
+          yaxis: {
+              labels : {
+                minWidth : 10
+              },
+              tickAmount: 2
+            },
+          xaxis: {
+            type: 'datetime',
+            categories: ['2019-05-01', '2019-05-11', '2019-06-12', '2019-06-21',
+              '2019-07-01', '2019-07-12'
+            ],
+          },
         }
    };
-   this.onAfterSaveCell = this.onAfterSaveCell.bind(this)
-   this.jobStatusValidator = this.jobStatusValidator.bind(this)
-   this.statusType = this.statusType.bind(this)
-   this.levelType = this.levelType.bind(this)
-   this.emailType = this.emailType.bind(this)
-   this.onDismiss = this.onDismiss.bind(this)
-   this.togglePassword = this.togglePassword.bind(this);
+
    this.onChangeDatePicker = this.onChangeDatePicker.bind(this);
 
  }
-  emailType = (cell) => {
-    return (<div><Badge color="warning" onClick={ () => this.togglePassword(cell)}><i className="icon-lock"/></Badge>{cell}</div>)
-  }
-  statusType = (cell) => {
-    if(cell == 0){
-      return (<Badge color="danger">Off</Badge>)
-    }else{
-      return (<Badge color="success">On</Badge>)
-    }
-  }
-  levelType = (cell) => {
-    if(cell == 0){
-      return (<Badge color="secondary">User</Badge>)
-    }else{
-      return (<Badge color="primary">Admin</Badge>)
-    }
-  }
-  createdType = (cell) => {
-    return toDateTimeLocal(cell)
-  }
-  handleSubmit = (e) => {
-    e.preventDefault()
-    const { form } = this.state
-    const { re_password , password , email } = form
-    if(re_password === password && password !== undefined && password.length >= 6){
-    putDataAPI('password',{password, email}).then(result => {
-      if(result.response === 200){
-        this.setState({
-                 postData : {
-                      isFetching : true,
-                      status : 'success',
-                      notification : `Success Generate New Password`
-                  }
-              })
-      }
-    }).catch( err => console.log(err))          
-        }else{
-              this.setState({
-                 postData : {
-                      isFetching : true,
-                      status : 'danger',
-                      notification : `Password not Match / at Least 6 Character`
-                  }
-              })
-        }
-  }
-  handleChange = (e) => {
-    e.preventDefault()
-    this.setState({
-      form :{
-        ...this.state.form,
-        [e.target.name] : e.target.value
-      }
-    })
-  }
-  onDeleteCell = async (row) => {
-   row.map((k,i) => {
-      deleteData('user',{ data: {id : k} })
-      .then(result => result)
-      .catch(err => console.log(err))
-   })
-      setTimeout( () => {
-           this.setState({
-            postData : {
-              isFetching : true,
-              status : 'success',
-              notification : 'Success Delete Data'
-          }}
-      )
-      },2000)
-  }
+ 
   onChangeDatePicker = (event, picker) =>{
       const dataTime = {
           start : toDateTimeLocalDB(picker.startDate._d),
@@ -297,40 +198,7 @@ class Graph extends Component {
         .catch(err => console.log(err))
     }
   }
- onAfterSaveCell = (row, cellName, cellValue) => {
 
-    if(cellName !== 'email'){
-      putDataAPI('user',row).then(
-      this.setState({
-                postData : {
-                  isFetching : true,
-                  status : 'success',
-                  notification : 'Success Update Data'
-              }}
-      )).catch(err => console.log(err))
-    }
-  }
-  invalidJobStatus = (cell, row) => {
-    return 'invalid-jobstatus-class';
-  }
-  jobStatusValidator = (value) => {
-     const arr = [0,1]
-     if(!arr.includes(parseInt(value))){
-      return alert('0 For OFF , 1 For On');
-     }
-    return true;
-  }
-  togglePassword(v) {
-    this.setState(prevState => ({
-      modal: !prevState.modal,
-      form : {
-        email : v,
-      }
-    }));
-  }
-  onDismiss = () => {
-    this.setState({ postData : {visible: false} });
-  }
  componentWillUnmount(){
 
  }
@@ -342,38 +210,25 @@ class Graph extends Component {
  componentDidMount(){
   const { isAuthenticated , level } = this.props
   if(isAuthenticated){
-    fetchingDataAPI('user').then(result => {
-      this.setState({
-        data : result,
-        level : level
-      })
-    }).catch(err => console.log(err));
+    postingDataAPI('/kbli/sps',{ level_1:1 }).then(result => result.data)
+    .then(data => {
+        console.log(data)
+        this.setState({
+          chartOptionsArea : {
+            ...this.state.chartOptionsArea,
+            xaxis : {
+              ...this.state.chartOptionsArea.xaxis,
+              categories : ['2019-01-01', '2019-02-11', '2019-03-12', '2019-04-21',
+                '2019-05-01', '2019-05-12'
+              ],
+            }
+          }
+        })
+    })
+    .catch(err => console.log(err));
   }
  }
   render() {
-    const { cellEditProp , data , postData , form  } = this.state
-    const { email , password , re_password } = form
-    const selectRowProp = {
-      mode: 'checkbox',
-      clickToSelect: true,
-      showOnlySelected: true,
-      onlyUnselectVisible: true,
-      columnWidth :'60px',
-      bgColor: 'lightblue',
-    };
-
-    const options = {
-      paginationShowsTotal: this.renderShowsTotal,
-      exportCSVBtn:this.createCustomExportCSV,
-      showSelectedOnlyBtn: this.ShowSelectedOnlyButton,
-      onDeleteRow  : this.onDeleteCell,
-      onRowClick: function(row, columnIndex, rowIndex, e){
-          // if(columnIndex === 3){
-          //     alert(`Kamu menekan sekali baris dengan Device ID: ${row.email} ,${columnIndex},${rowIndex}`);
-          // }
-        }
-    };
-
      if (!this.props.isAuthenticated) {
       return (<Redirect to="/login" />);
     }
@@ -381,17 +236,10 @@ class Graph extends Component {
       return (<Redirect to="/dashboard" />);
     }
     return (
-      
       <div className="animated fadeIn">
-      {
-        postData.isFetching && <Alert color={postData.status} isOpen={this.state.visible} toggle={this.onDismiss}>
-             {postData.notification}
-            </Alert>
-      }
-
         <Row xs="12" lg="12">
           <Col xs="12" lg="12">
-                      <Card>
+            <Card>
               <CardHeader>
                 <strong><i className="icon-info pr-1"></i>User List</strong>
               </CardHeader>
@@ -410,17 +258,7 @@ class Graph extends Component {
                   </DateRangePicker>
                 </div>
                   <div id="wrapper">
-                    <div id="chart-line">
-                      <Chart type="line" height="160"  options={this.state.chartOptionsLine1} series={this.state.series1}/>
-                    </div>
-
-                    <div id="chart-line2">
-                      <Chart type="line" height="160"  options={this.state.chartOptionsLine2} series={this.state.series2}/>
-                    </div>
-
-                    <div id="chart-area">
-                      <Chart type="area" height="160"  options={this.state.chartOptionsArea} series={this.state.series3}/>
-                    </div>
+                      <Chart type="area" options={this.state.chartOptionsArea} series={this.state.series3}/>
                   </div>
               </CardBody>
             </Card>
