@@ -376,26 +376,27 @@ class Kbli extends Component {
       },2000)
   }
  onAfterSaveCell = (row, cellName, cellValue) => {
-  let priceJSONparse = JSON.parse(row.price)
-  if(cellName.search('_price_') >= 1){
-    const parseCellName = cellName.split('_') ,
-        objectEdit = { 
-          [parseCellName[0] + '_price'] : parseInt(cellValue) 
-        },
-        indexfOfCell = priceJSONparse.map(key => key.year).indexOf(parseInt(parseCellName[2])),
-        locateInJSON = priceJSONparse.find(key => key.year === parseInt(parseCellName[2]))
-        Object.assign(priceJSONparse[indexfOfCell],objectEdit)
-  }
-  if(cellName !== 'labels'){
-      putDataAPI('kbli',{...row , price : priceJSONparse}).then(
-            this.setState({
-                postData : {
-                  isFetching : true,
-                  status : 'success',
-                  notification : 'Success Update Data'}
-              })
-      ).catch(err => console.log(err))
+    let priceJSONparse = JSON.parse(row.price)
+    if(cellName.search('_price_') >= 1){
+      const parseCellName = cellName.split('_') ,
+          objectEdit = { 
+            [parseCellName[0] + '_price'] : parseInt(cellValue) 
+          },
+          indexfOfCell = priceJSONparse.map(key => key.year).indexOf(parseInt(parseCellName[2])),
+          locateInJSON = priceJSONparse.find(key => key.year === parseInt(parseCellName[2]))
+          Object.assign(priceJSONparse[indexfOfCell],objectEdit)
     }
+    console.log(priceJSONparse)
+    if(cellName !== 'labels'){
+        putDataAPI('kbli',{...row , price : priceJSONparse}).then(
+              this.setState({
+                  postData : {
+                    isFetching : true,
+                    status : 'success',
+                    notification : 'Success Update Data'}
+                })
+        ).catch(err => console.log(err))
+      }
   }
 
  invalidJobStatus = (cell, row) => {

@@ -10,6 +10,8 @@ import { fetchingDataAPI , putDataAPI , deleteData , postingDataAPI } from '../.
 import { toDateTimeLocal, toDateTimeLocalDB } from '../../utils/Helper';
 import { actionCheckExpired , deleteUser, deleteToken, setAuthenticated  } from '../../utils/Action';
 import { Redirect } from 'react-router-dom';
+import { Data } from '../../utils/Data';
+import Select from 'react-select';
 import Chart from 'react-apexcharts'
 let contentData = []
 const CryptoJS = require("crypto-js");
@@ -28,51 +30,13 @@ function generateDayWiseTimeSeries(baseval, count, yrange) {
     }
 
     // The global window.Apex variable below can be used to set common options for all charts on the page
-const Apex = {
-      dataLabels: {
-        enabled: false
-      },
-      stroke: {
-        curve: 'straight'
-      },
-      toolbar: {
-        tools: {
-          selection: false
-        }
-      },
-      markers: {
-        size: 6,
-        hover: {
-          size: 10
-        }
-      },
-      tooltip: {
-        followCursor: false,
-        theme: 'dark',
-        x: {
-          show: false
-        },
-        marker: {
-          show: false
-        },
-        y: {
-          title: {
-            formatter: function () {
-              return ''
-            }
-          }
-        }
-      },
-      grid: {
-        clipMarkers: false
-      },
-      yaxis: {
-        tickAmount: 2
-      },
-      xaxis: {
-        type: 'datetime'
-      },
-    }
+
+
+const createOption = (label: string, value) => ({
+  label,
+  value: value,
+});
+
 class Graph extends Component {
  constructor(props) {
    super(props);
@@ -84,6 +48,10 @@ class Graph extends Component {
         modal: false,
         token : '',
         level : '',
+        selectedOption: null,
+        selectedOptionValue: [],
+        selectedOptionKbli : null,
+        selectedOptionValueKbli : [],
         postData : {
           notification : '',
           isFetching : true,
@@ -95,7 +63,7 @@ class Graph extends Component {
           blurToSave: true,
           afterSaveCell: this.onAfterSaveCell // a hook for after saving cell
         },
-        series3: [{
+        series: [{
           name: "Max Price",
           data: [12,20,420,102,22,402]
         },{
@@ -171,11 +139,41 @@ class Graph extends Component {
           },
         }
    };
-
    this.onChangeDatePicker = this.onChangeDatePicker.bind(this);
-
  }
  
+   handleChangeSelectOptKbli = selectedOptionKbli => {
+    if(selectedOptionKbli !== null){
+      console.log(selectedOptionKbli)
+      const id_row = selectedOptionKbli.map((key) => {
+        return key.value
+      })
+      console.log(id_row)
+        postingDataAPI('kbli/row',{id_row})
+          .then(result => console.log(result))
+          .catch(error => console.log(error))
+        // const json = JSON.parse(result.price)
+        // const data =  json.map(key => key.min_price)
+        // this.setState({
+        //   selectedOptionValue,
+          // chartOptionsArea : {
+          //     ...this.state.chartOptionsArea,
+          //   xaxis : {
+          //     ...this.state.chartOptionsArea.xaxis,
+          //     categories,
+          //   }
+          // },
+        //   series : [{ name : "First", data}]
+        // })
+    }
+    this.setState({ selectedOptionKbli });
+  };
+  handleChangeSelectOpt = selectedOption => {
+    if(selectedOption !== null){
+      console.log(selectedOption)
+    }
+    this.setState({ selectedOption });
+  };
   onChangeDatePicker = (event, picker) =>{
       const dataTime = {
           start : toDateTimeLocalDB(picker.startDate._d),
@@ -209,26 +207,38 @@ class Graph extends Component {
 }
  componentDidMount(){
   const { isAuthenticated , level } = this.props
+  const generateData = Data()
+  let selectedOptionValue = [] , selectedOptionValueKbli = []
+  const categories = generateData.map(key => {
+    selectedOptionValue.push(createOption(`Max Price ${key.toString()}`,`max_price_${key.toString()}`))
+    selectedOptionValue.push(createOption(`Min Price ${key.toString()}`,`min_price_${key.toString()}`))
+    return key.toString()
+  })
   if(isAuthenticated){
-    postingDataAPI('/kbli/sps',{ level_1:1 }).then(result => result.data)
-    .then(data => {
-        console.log(data)
+    fetchingDataAPI('kbli')
+    .then(result => {
+        selectedOptionValueKbli = result.map((key) => createOption(`${key.level_1}.${key.level_2}.${key.level_3}
+          .${key.level_4}.${key.level_5} 
+          - ${key.title}`,key.id_row))
         this.setState({
+          selectedOptionValue,
+          selectedOptionValueKbli,
           chartOptionsArea : {
-            ...this.state.chartOptionsArea,
+              ...this.state.chartOptionsArea,
             xaxis : {
               ...this.state.chartOptionsArea.xaxis,
-              categories : ['2019-01-01', '2019-02-11', '2019-03-12', '2019-04-21',
-                '2019-05-01', '2019-05-12'
-              ],
+              categories,
             }
-          }
+          },
         })
+        return selectedOptionValueKbli
     })
     .catch(err => console.log(err));
   }
  }
   render() {
+    const { selectedOption , selectedOptionValue , 
+      selectedOptionKbli, selectedOptionValueKbli } = this.state
      if (!this.props.isAuthenticated) {
       return (<Redirect to="/login" />);
     }
@@ -238,31 +248,41 @@ class Graph extends Component {
     return (
       <div className="animated fadeIn">
         <Row xs="12" lg="12">
+            <Col xs="12" lg="12">
+                <Select
+                value={selectedOptionKbli}
+                onChange={this.handleChangeSelectOptKbli}
+                options={selectedOptionValueKbli}
+                isSearchable = {true}
+                placeholder = "KBLI ..."
+                isMulti={true}
+              />
+            </Col>
+        </Row>
+        <Row xs="12" lg="12">
+            <Col xs="12" lg="12">
+              <Select
+                  value={selectedOption}
+                  onChange={this.handleChangeSelectOpt}
+                  options={selectedOptionValue}
+                  isSearchable = {true}
+                   placeholder = "Paramater Max / Min ..."
+                  isMulti={true}
+                />
+            </Col>
+        </Row>
+        <Row xs="12" lg="12">
           <Col xs="12" lg="12">
             <Card>
               <CardHeader>
-                <strong><i className="icon-info pr-1"></i>User List</strong>
+                <strong><i className="icon-info pr-1"></i>Graph</strong>
               </CardHeader>
               <CardBody>
-                 <div className='form-group'>
-                  <DateRangePicker 
-                    startDate={this.state.startDateDR} 
-                    endDate={this.state.endDate}
-                    onEvent={this.onChangeDatePicker}
-                    showWeekNumbers
-                    >
-                    <Button onClick={this.onClick}>
-                      <i className="fa fa-calendar"/>
-                      <span> {this.state.labelCal}</span>                          
-                    </Button>            
-                  </DateRangePicker>
-                </div>
                   <div id="wrapper">
-                      <Chart type="area" options={this.state.chartOptionsArea} series={this.state.series3}/>
+                      <Chart type="area" options={this.state.chartOptionsArea} series={this.state.series}/>
                   </div>
               </CardBody>
             </Card>
-
           </Col>
         </Row>
       </div>
