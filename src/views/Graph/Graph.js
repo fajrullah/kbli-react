@@ -15,23 +15,14 @@ import Select from 'react-select';
 import Chart from 'react-apexcharts'
 let contentData = []
 const CryptoJS = require("crypto-js");
-function generateDayWiseTimeSeries(baseval, count, yrange) {
-      var i = 0;
-      var series = [];
-      while (i < count) {
-        var x = baseval;
-        var y = Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min;
-
-        series.push([x, y]);
-        baseval += 86400000;
-        i++;
-      }
-      return series;
-    }
-
-    // The global window.Apex variable below can be used to set common options for all charts on the page
-
-
+const generateColors = (leng) => {
+  let colors = []
+  for(let i = 0; i < leng ; i++){
+    const gen = '#'+(Math.random()*0xFFFFFF<<0).toString(16)
+    colors.push(`${gen}`)
+  }
+  return colors
+}
 const createOption = (label: string, value) => ({
   label,
   value: value,
@@ -148,9 +139,32 @@ class Graph extends Component {
       const id_row = selectedOptionKbli.map((key) => {
         return key.value
       })
-      console.log(id_row)
         postingDataAPI('kbli/row',{id_row})
-          .then(result => console.log(result))
+          .then(result => result.data)
+          .then(data => {
+              let series = []
+              const price = data.map((key) => {
+                 const title = `${key.title}`
+                 const price = JSON.parse(key.price)
+                 let minprice = []
+                 let maxprice = []
+                 const formatData = price.map((key) => {
+                    minprice.push(key.min_price)
+                    maxprice.push(key.max_price)
+                 })
+                 series.push({ name : `Min Price ${title}`, data : minprice})
+                 series.push({ name : `Max Price ${title}`, data : maxprice})
+              })
+              const leng = series.length
+              const colors = generateColors(leng)
+              this.setState({
+                  series,          
+                  chartOptionsArea : {
+                      ...this.state.chartOptionsArea,
+                      colors
+                  },
+                })
+          })
           .catch(error => console.log(error))
         // const json = JSON.parse(result.price)
         // const data =  json.map(key => key.min_price)
@@ -217,8 +231,7 @@ class Graph extends Component {
   if(isAuthenticated){
     fetchingDataAPI('kbli')
     .then(result => {
-        selectedOptionValueKbli = result.map((key) => createOption(`${key.level_1}.${key.level_2}.${key.level_3}
-          .${key.level_4}.${key.level_5} 
+        selectedOptionValueKbli = result.map((key) => createOption(`${key.level_1}.${key.level_2}.${key.level_3}.${key.level_4}.${key.level_5} 
           - ${key.title}`,key.id_row))
         this.setState({
           selectedOptionValue,
@@ -257,18 +270,6 @@ class Graph extends Component {
                 placeholder = "KBLI ..."
                 isMulti={true}
               />
-            </Col>
-        </Row>
-        <Row xs="12" lg="12">
-            <Col xs="12" lg="12">
-              <Select
-                  value={selectedOption}
-                  onChange={this.handleChangeSelectOpt}
-                  options={selectedOptionValue}
-                  isSearchable = {true}
-                   placeholder = "Paramater Max / Min ..."
-                  isMulti={true}
-                />
             </Col>
         </Row>
         <Row xs="12" lg="12">
