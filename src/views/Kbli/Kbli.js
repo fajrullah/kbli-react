@@ -388,13 +388,14 @@ class Kbli extends Component {
     }
     console.log(priceJSONparse)
     if(cellName !== 'labels'){
-        putDataAPI('kbli',{...row , price : priceJSONparse}).then(
+        putDataAPI('kbli',{...row , price : priceJSONparse}).then(result => {
               this.setState({
                   postData : {
                     isFetching : true,
                     status : 'success',
                     notification : 'Success Update Data'}
                 })
+           }
         ).catch(err => console.log(err))
       }
   }
