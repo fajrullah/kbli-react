@@ -529,12 +529,12 @@ class Kbli extends Component {
         }
     };
 
-    //  if (!this.props.isAuthenticated) {
-    //   return (<Redirect to="/login" />);
-    // }
-    //  if (this.props.isAuthenticated && this.props.level !== 1) {
-    //   return (<Redirect to="/dashboard" />);
-    // }
+     if (!this.props.isAuthenticated) {
+      return (<Redirect to="/login" />);
+    }
+     if (this.props.isAuthenticated && this.props.level !== 1) {
+      return (<Redirect to="/dashboard" />);
+    }
 
     return (
       <div className="animated fadeIn">
