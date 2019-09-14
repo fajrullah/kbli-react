@@ -1,3 +1,19 @@
+.row-custom {
+	margin-top: -6% !important;
+}
+.modal-Headercustom {
+	border-bottom: none !important;
+	color: #ff2253 !important;
+}
+.button-addKbli {
+	background: linear-gradient(306deg, rgba(238,38,38,1) 0%, rgba(236,137,214,0.9752275910364145) 95%) !important;	
+	color: white !important;
+	border-radius: 30px !important;
+}
+.react-bootstrap-table table {
+	table-layout: auto !important;
+}
+
 .breadcrumb-item > a {
 	color: #ff2253 !important;
 }
@@ -149,6 +165,11 @@
 	color: red;
 }
 @media (min-width: 1281px) {
+	.building-style {
+		width: 46% !important;
+		z-index: 1;
+		opacity: 0.3;
+	}
 	.title-side {
 		color: white !important;
 		position: absolute !important;
@@ -199,6 +220,43 @@
 		position: absolute !important;
 		z-index: 2 !important;
 		margin-left: 7%;
+		margin-right: auto;
+	}
+}
+@media (min-width: 320px) and (max-width: 480px) {
+	.cardbody-custom {
+		padding: 1.25rem 0 0 0 !important;
+	}
+	.apexcharts-toolbar {
+		padding: 17px 6px 2px 6px !important;
+	}
+	.building-style {
+		width: 46% !important;
+		z-index: 1;
+		opacity: 0.3;
+		display: none !important;
+	}
+	.word-side ,.title-side {
+		display: none !important;
+	}
+	.register_button {
+		display: none !important;	
+	}
+	.forget_pass {
+		color: white;
+		position: absolute;
+		margin-top: 100%;
+		font-size: 14px;
+	}
+	.background-custom {
+		background: linear-gradient(306deg, rgba(238,38,38,1) 0%, rgba(236,137,214,0.9752275910364145) 93%) !important;
+		height: 100% !important;
+		width: 100% !important;
+	}
+	.container-register {
+		position: absolute !important;
+		z-index: 2 !important;
+		margin-left: 0% !important;
 		margin-right: auto;
 	}
 }

@@ -84,7 +84,7 @@ class Graph extends Component {
             }
           },
           responsive: [{
-              breakpoint: 480,
+              breakpoint: undefined,
               options: {
                 legend: {
                   show:true,
@@ -254,12 +254,12 @@ class Graph extends Component {
   render() {
     const { selectedOption , selectedOptionValue , 
       selectedOptionKbli, selectedOptionValueKbli } = this.state
-     if (!this.props.isAuthenticated) {
-      return (<Redirect to="/login" />);
-    }
-     if (this.props.isAuthenticated && this.props.level !== 1) {
-      return (<Redirect to="/dashboard" />);
-    }
+    //  if (!this.props.isAuthenticated) {
+    //   return (<Redirect to="/login" />);
+    // }
+    //  if (this.props.isAuthenticated && this.props.level !== 1) {
+    //   return (<Redirect to="/dashboard" />);
+    // }
     return (
       <div className="animated fadeIn">
         <Row xs="12" lg="12" className="select_row">
@@ -280,7 +280,7 @@ class Graph extends Component {
               <CardHeader>
                 <strong><i className="icon-info pr-1"></i>Graph</strong>
               </CardHeader>
-              <CardBody>
+              <CardBody className="cardbody-custom">
                   <div id="wrapper">
                       <Chart type="area" options={this.state.chartOptionsArea} series={this.state.series}/>
                   </div>
