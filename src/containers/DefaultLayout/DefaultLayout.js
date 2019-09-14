@@ -24,6 +24,7 @@ import { connect } from 'react-redux';
 const DefaultAside = React.lazy(() => import('./DefaultAside'));
 const DefaultFooter = React.lazy(() => import('./DefaultFooter'));
 const DefaultHeader = React.lazy(() => import('./DefaultHeader'));
+require('../../views/custom.css');
 
 class DefaultLayout extends Component {
 

@@ -10,6 +10,7 @@ import { toRomawiString } from '../../utils/Helper';
 import { actionCheckExpired } from '../../utils/Action';
 import { Data } from '../../utils/Data';
 import { Redirect } from 'react-router-dom';
+require('../custom.css');
 
 type State = {
   options: [{ [string]: string }],
@@ -548,7 +549,7 @@ class Kbli extends Component {
       } 
         <Row xs="12" lg="12">
           <Col xs="12" lg="12">
-            <Card>
+            <Card className="cardcustom">
               <CardHeader>
                 <strong><i className="icon-info pr-1"></i>Kbli List</strong>
               </CardHeader>
