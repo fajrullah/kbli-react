@@ -10,6 +10,7 @@ import { toRomawiString } from '../../utils/Helper';
 import { actionCheckExpired } from '../../utils/Action';
 import { Data } from '../../utils/Data';
 import { Redirect } from 'react-router-dom';
+require('../custom.css');
 
 type State = {
   options: [{ [string]: string }],
@@ -538,8 +539,8 @@ class Kbli extends Component {
     return (
       <div className="animated fadeIn">
       <Row>
-        <Col xs="2">
-            <Button color="success" onClick={ () => this.toggleKbli('s')}><i className="icon-plus"/> Add KBLI</Button>
+        <Col xs="12">
+            <Button className="button-addKbli" onClick={ () => this.toggleKbli('s')}><i className="icon-plus"/> Add KBLI</Button>
         </Col>
       </Row> 
       {
@@ -549,7 +550,7 @@ class Kbli extends Component {
       } 
         <Row xs="12" lg="12">
           <Col xs="12" lg="12">
-            <Card>
+            <Card className="cardcustom">
               <CardHeader>
                 <strong><i className="icon-info pr-1"></i>Kbli List</strong>
               </CardHeader>
@@ -579,14 +580,14 @@ class Kbli extends Component {
         </Row>
         <Modal isOpen={this.state.modal} backdrop={true} toggle={this.toggleKbli}>
           <Form onSubmit={this.handleSubmit}>
-          <ModalHeader toggle={this.toggleKbli}> Create KBLI </ModalHeader>
+          <ModalHeader toggle={this.toggleKbli} className="modal-Headercustom"> Create KBLI </ModalHeader>
           <ModalBody>
             {
                 postData.isFetching && <Alert color={postData.status} isOpen={this.state.visible}>
                      {postData.notification}
                     </Alert>
             }
-            <Row>
+            <Row className="row-custom">
               <Col xs="12">
                Parameter :  {levelTitle}
               </Col>
@@ -682,7 +683,7 @@ class Kbli extends Component {
             </Row>
           </ModalBody>
           <ModalFooter>
-            <Button color="info"><i className="icon-plus" /> Add New KBLI</Button>
+            <Button className="button-addKbli"><i className="icon-plus" /> Add New KBLI</Button>
           </ModalFooter>
           </Form>
         </Modal>

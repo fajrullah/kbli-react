@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { Alert , Button, Card, CardBody, CardFooter, Col, Container, Form, Input, InputGroup, InputGroupAddon, InputGroupText, Row } from 'reactstrap';
 import axios from 'axios';
+import building from '../../../assets/img/building2.jpg';
+import { Link } from 'react-router-dom';
+require('../../custom.css');
 
 class Register extends Component {
   constructor(props) {
@@ -70,21 +73,22 @@ class Register extends Component {
     const { postData } = this.state
     console.log(postData)
     return (
-      <div className="app flex-row align-items-center">
-        <Container>
+      <div className="app flex-row align-items-center background-custom" style={{position:"absolute"}}>
+        <img src={building} className="building-style-register"/>
+        <Container className="container-register">
           <Row className="justify-content-center">
             <Col md="9" lg="7" xl="6">
               <Card className="mx-4">
                 <CardBody className="p-4">
                   <Form onSubmit={this.handleSubmit}>
-                    <h1>Register</h1>
+                    <h1 className="tittle_register">Register</h1>
                     {
                       postData.isFetching &&  
                                    <Alert color={postData.status} isOpen={this.state.visible} toggle={this.onDismiss}>
                                       {postData.notification}
                                     </Alert>
                     }
-                    <p className="text-muted">Create your account</p>
+                    <p className="text-muted">Silahkan Buat Akun Anda</p>
                     <InputGroup className="mb-3">
                       <InputGroupAddon addonType="prepend">
                         <InputGroupText>
@@ -118,24 +122,27 @@ class Register extends Component {
                       </InputGroupAddon>
                       <Input type="password" onChange={this.handleChange} value={this.state.re_password} name="re_password" placeholder="Repeat password" autoComplete="new-password" />
                     </InputGroup>
-                    <Button color="success" block>Create Account</Button>
+                    <Button className="login-button">Create Account</Button>
                   </Form>
                 </CardBody>
-                <CardFooter className="p-4">
-                  <Row>
-                    <Col xs="12" sm="6">
+                {/*<CardFooter className="p-4">*/}
+                  {/*<Row>*/}
+                    {/*<Col xs="12" sm="6">*/}
                       {
                       //<Button className="btn-facebook mb-1" block><span>facebook</span></Button>
                      }
-                    </Col>
-                    <Col xs="12" sm="6">
+                    {/*</Col>*/}
+                    {/*<Col xs="12" sm="6">*/}
                     {
                       //<Button className="btn-twitter mb-1" block><span>twitter</span></Button>
                     }
-                    </Col>
-                  </Row>
-                </CardFooter>
+                    {/*</Col>*/}
+                  {/*</Row>*/}
+                {/*</CardFooter>*/}
               </Card>
+              <p className="back_reg">Sudah Punya akun?, Kembali ke halaman 
+                <Link to="/login" className="back_login"> Login</Link>
+              </p>
             </Col>
           </Row>
         </Container>

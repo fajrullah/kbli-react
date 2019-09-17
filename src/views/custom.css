@@ -1,0 +1,262 @@
+.row-custom {
+	margin-top: -6% !important;
+}
+.modal-Headercustom {
+	border-bottom: none !important;
+	color: #ff2253 !important;
+}
+.button-addKbli {
+	background: linear-gradient(306deg, rgba(238,38,38,1) 0%, rgba(236,137,214,0.9752275910364145) 95%) !important;	
+	color: white !important;
+	border-radius: 30px !important;
+}
+.react-bootstrap-table table {
+	table-layout: auto !important;
+}
+
+.breadcrumb-item > a {
+	color: #ff2253 !important;
+}
+.sidebar {
+	background: white !important;
+}
+.sidebar .nav-link {
+	color : #2f353a !important;
+}
+.sidebar .nav-link:hover {
+	background: #ff2253 !important;
+	color: white !important;
+}
+.sidebar .nav-link.active {
+	background: #ff2253 !important;
+	color: white !important;
+}
+.sidebar .nav-link.active .nav-icon {
+	color :  white !important;
+}
+.sidebar .nav-link .nav-icon {
+	color: #ff2253 !important;
+}
+.sidebar .nav-link .nav-icon:hover{
+	color: #fff !important;
+}
+.breadcrumb {
+	border-bottom: none !important;
+}
+.app-header {
+	border: none !important;
+	box-shadow: rgba(0, 0, 0, 0.07) 0px 0px 15px 5px !important;	
+}
+.forget_pass {
+	color: white;
+	position: absolute;
+	margin-top: 75%;
+	font-size: 15px;
+}
+.back_login {
+	color: purple;
+}
+.back_reg {
+	color: white;
+	text-align: center;
+	font-size: 15px;
+}
+.app {
+	position: absolute !important;
+	width: 100% !important;
+}
+.container-register {
+	position: absolute !important;
+	z-index: 2 !important;
+	margin-left: 20%;
+	margin-right: auto;
+}
+.cardcustom {
+	border: none;
+	box-shadow: 0px 0px 15px 5px rgba(0,0,0,0.07);
+	padding: 20px;
+}
+.select_row {
+	margin-bottom: 20px;
+}
+.background-custom {
+	background: linear-gradient(306deg, rgba(238,38,38,1) 0%, rgba(236,137,214,0.9752275910364145) 93%) !important;
+}
+.building-style {
+	width: 50% !important;
+	z-index: 1;
+	opacity: 0.3;
+}
+.building-style-register {
+	width: 100% !important;
+	z-index: 1;
+	opacity: 0.05;
+	height: 100% !important;
+	position: absolute !important;
+}
+.title-side {
+	color: white;
+	position: absolute;
+	font-size: 3em;
+	margin-left: 17%;
+	font-weight: 600;
+	z-index: 2;
+	margin-top: -10%;
+	/* margin-left: -20%; */
+}
+.word-side {
+	color: white;
+	position: absolute;
+	font-size: 2em;
+	margin-left: 9%;
+	z-index: 2;
+	margin-top: -2%;
+}
+.register_button {
+	z-index: 2;
+	font-size: 1.2em;
+	position: absolute;
+	background: transparent;
+	border: 4px solid #ed5374;
+	border-radius: 30px;
+	color: white;
+	width: 9%;
+	height: 5%;
+	margin-left: 20%;
+	margin-top: 3%;
+}
+.register_button:hover {
+	background: #ed5374;
+	color: white;
+	border: 4px solid transparent;
+}
+.login-tittle{
+	color: #ed5273 !important;
+	text-align: center;
+	font-size: 3em;
+	margin-bottom: 5%;
+}
+.login-button {
+	width: 100% !important;
+	margin-top: 3%;
+	border-radius: 30px;
+	height: 100%;
+	color: white;
+	background: #ed5374 !important;
+	font-size: 1em;
+}
+.login-button:hover {
+	height: 100%;
+	color: #ed5374;
+	background: #e3e3e3 !important;
+	border: 4px solid #ed5374;
+	border-radius: 30px;
+}
+.MuiInput-underline:before {
+	border-bottom: 1px solid rgb(238, 61, 77) !important;
+}
+.tittle_register{
+	color: #ed5273 !important;
+	text-align: center;
+	font-size: 3em;
+	margin-bottom: 5%;
+}
+.icon-user, .icon-envelope, .icon-lock {
+	color: red;
+}
+@media (min-width: 1281px) {
+	.building-style {
+		width: 46% !important;
+		z-index: 1;
+		opacity: 0.3;
+	}
+	.title-side {
+		color: white !important;
+		position: absolute !important;
+		font-weight: 600 !important;
+		font-size: 2.5em !important;
+		margin-left: 15% !important;
+		margin-top: -10% !important;
+	}	
+	.word-side {
+		color: white;
+		position: absolute;
+		font-size: 1.5em;
+		margin-left: 7%;
+		z-index: 2;
+		margin-top: -2%;
+	}
+	.register_button {
+		z-index: 2;
+		font-size: 1.2em;
+		position: absolute;
+		background: transparent;
+		border: 3px solid #ed5374;
+		border-radius: 30px;
+		color: white;
+		width: 10%;
+		height: 8%;
+		margin-left: 20%;
+		margin-top: 3%;
+	}
+	.cardcustom {
+		border: none;
+		box-shadow: 0px 0px 15px 5px rgba(0,0,0,0.07);
+		padding: 5px !important;
+	}
+	.login-tittle{
+		color: #ed5273 !important;
+		text-align: center;
+		font-size: 2.5em;
+		margin-bottom: 5%;
+	}
+	.forget_pass {
+		color: white;
+		position: absolute;
+		margin-top: 100%;
+		font-size: 15px;
+	}
+	.container-register {
+		position: absolute !important;
+		z-index: 2 !important;
+		margin-left: 7%;
+		margin-right: auto;
+	}
+}
+@media (min-width: 320px) and (max-width: 480px) {
+	.cardbody-custom {
+		padding: 1.25rem 0 0 0 !important;
+	}
+	.apexcharts-toolbar {
+		padding: 17px 6px 2px 6px !important;
+	}
+	.building-style {
+		width: 46% !important;
+		z-index: 1;
+		opacity: 0.3;
+		display: none !important;
+	}
+	.word-side ,.title-side {
+		display: none !important;
+	}
+	.register_button {
+		display: none !important;	
+	}
+	.forget_pass {
+		color: white;
+		position: absolute;
+		margin-top: 100%;
+		font-size: 14px;
+	}
+	.background-custom {
+		background: linear-gradient(306deg, rgba(238,38,38,1) 0%, rgba(236,137,214,0.9752275910364145) 93%) !important;
+		height: 100% !important;
+		width: 100% !important;
+	}
+	.container-register {
+		position: absolute !important;
+		z-index: 2 !important;
+		margin-left: 0% !important;
+		margin-right: auto;
+	}
+}

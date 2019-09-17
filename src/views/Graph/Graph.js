@@ -12,7 +12,9 @@ import { actionCheckExpired , deleteUser, deleteToken, setAuthenticated  } from 
 import { Redirect } from 'react-router-dom';
 import { Data } from '../../utils/Data';
 import Select from 'react-select';
-import Chart from 'react-apexcharts'
+import Chart from 'react-apexcharts';
+require('../custom.css');
+
 let contentData = []
 const CryptoJS = require("crypto-js");
 const generateColors = (leng) => {
@@ -82,7 +84,7 @@ class Graph extends Component {
             }
           },
           responsive: [{
-              breakpoint: 480,
+              breakpoint: undefined,
               options: {
                 legend: {
                   show:true,
@@ -260,7 +262,7 @@ class Graph extends Component {
     }
     return (
       <div className="animated fadeIn">
-        <Row xs="12" lg="12">
+        <Row xs="12" lg="12" className="select_row">
             <Col xs="12" lg="12">
                 <Select
                 value={selectedOptionKbli}
@@ -274,11 +276,11 @@ class Graph extends Component {
         </Row>
         <Row xs="12" lg="12">
           <Col xs="12" lg="12">
-            <Card>
+            <Card className="cardcustom">
               <CardHeader>
                 <strong><i className="icon-info pr-1"></i>Graph</strong>
               </CardHeader>
-              <CardBody>
+              <CardBody className="cardbody-custom">
                   <div id="wrapper">
                       <Chart type="area" options={this.state.chartOptionsArea} series={this.state.series}/>
                   </div>
