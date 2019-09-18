@@ -36,7 +36,7 @@ class Login extends Component {
     const isAuthenticated = this.props.isAuthenticated;
 
     if (isAuthenticated) {
-      return (<Redirect to="/dashboard" />);
+      return (<Redirect to="/graph" />);
     }
     return (
       <div className="app flex-row align-items-center background-custom">

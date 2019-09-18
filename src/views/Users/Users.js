@@ -22,6 +22,7 @@ class User extends Component {
         startDateDR: moment().subtract(30, 'days'),
         endDate: moment(),
         labelCal: 'Filter By Date',
+        loading : true ,
         modal: false,
         token : '',
         level : '',
@@ -193,13 +194,14 @@ class User extends Component {
     fetchingDataAPI('user').then(result => {
       this.setState({
         data : result,
-        level : level
+        level : level,
+        loading : false,
       })
     }).catch(err => console.log(err));
   }
  }
   render() {
-    const { cellEditProp , data , postData , form  } = this.state
+    const { cellEditProp , data , postData , form , loading } = this.state
     const { email , password , re_password } = form
     const selectRowProp = {
       mode: 'checkbox',
@@ -230,6 +232,9 @@ class User extends Component {
     }
      if (this.props.isAuthenticated && this.props.level !== 1) {
       return (<Redirect to="/dashboard" />);
+    }
+    if(loading){
+      return <div> Loading ... </div>
     }
     return (
       
