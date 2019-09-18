@@ -35,7 +35,7 @@ export function deleteToken() {
 
 export function actionCheckExpired(values) {
    return dispatch => {
-     axios.get("http://127.0.0.1:4000/profile/", {
+     axios.get("https://kbli-rest.herokuapp.com/profile/", {
         headers: {
           'Authorization': `${values}`,
           'Secret' : '4sri',
@@ -43,7 +43,7 @@ export function actionCheckExpired(values) {
       })
         .then(response => response.data)
         .then(json => {
-          console.log(json)
+
             if(json.status !== 'on'){
                 localStorage.clear();
                 dispatch(deleteUser());
@@ -56,7 +56,7 @@ export function actionCheckExpired(values) {
 
 export function actionGetUsername(values) {
    return dispatch => {
-     axios.post("http://127.0.0.1:4000/getUser/",{ email : values.email }, {
+     axios.post("https://kbli-rest.herokuapp.com/getUser/",{ email : values.email }, {
         headers: {
           'Authorization': `Bearer ${values.token}`,
         }
@@ -74,7 +74,7 @@ export function actionGetUsername(values) {
 export function actionTryLogin(values) {
     return dispatch => {
     dispatch(setFetching(true));
-    axios.post('http://127.0.0.1:4000/login/', values)
+    axios.post('https://kbli-rest.herokuapp.com/login/', values)
     .then(response => response.data)
     .then(data => {
       const token = data;

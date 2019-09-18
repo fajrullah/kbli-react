@@ -138,7 +138,7 @@ class Graph extends Component {
  
    handleChangeSelectOptKbli = selectedOptionKbli => {
     if(selectedOptionKbli !== null){
-      console.log(selectedOptionKbli)
+
       const id_row = selectedOptionKbli.map((key) => {
         return key.value
       })
