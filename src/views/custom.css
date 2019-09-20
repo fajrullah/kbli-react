@@ -84,6 +84,8 @@
 }
 .building-style {
 	width: 50% !important;
+	-moz-width: 50% !important;
+	-ms-width: 50% !important;
 	z-index: 1;
 	opacity: 0.3;
 }
@@ -166,7 +168,9 @@
 }
 @media (min-width: 1281px) {
 	.building-style {
-		width: 46% !important;
+		width: 50% !important;
+		width: -moz-max-content !important;
+		/* width: -webkit-max-content !important;		 */
 		z-index: 1;
 		opacity: 0.3;
 	}
