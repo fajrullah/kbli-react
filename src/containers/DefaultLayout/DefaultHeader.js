@@ -37,7 +37,7 @@ class DefaultHeader extends Component {
           </NavItem>
           <NavItem className="px-3">
            { (level === 1) &&
-            <NavLink to="/registered" className="nav-link">Create</NavLink>
+            <NavLink to="/register" className="nav-link">Create</NavLink>
            }
           </NavItem>
         </Nav>
