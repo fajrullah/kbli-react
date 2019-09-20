@@ -45,6 +45,7 @@ class Graph extends Component {
         selectedOptionValue: [],
         selectedOptionKbli : null,
         selectedOptionValueKbli : [],
+        loading : true, 
         postData : {
           notification : '',
           isFetching : true,
@@ -137,7 +138,7 @@ class Graph extends Component {
  
    handleChangeSelectOptKbli = selectedOptionKbli => {
     if(selectedOptionKbli !== null){
-      console.log(selectedOptionKbli)
+
       const id_row = selectedOptionKbli.map((key) => {
         return key.value
       })
@@ -218,11 +219,11 @@ class Graph extends Component {
  }
 
  componentWillMount(){
-  const { token , isAuthenticated } = this.props
+  const { token , isAuthenticated , loading } = this.props
   this.props.checkToken(token.token)
 }
  componentDidMount(){
-  const { isAuthenticated , level } = this.props
+  const { isAuthenticated , level ,  } = this.props
   const generateData = Data()
   let selectedOptionValue = [] , selectedOptionValueKbli = []
   const categories = generateData.map(key => {
@@ -236,6 +237,7 @@ class Graph extends Component {
         selectedOptionValueKbli = result.map((key) => createOption(`${key.level_1}.${key.level_2}.${key.level_3}.${key.level_4}.${key.level_5} 
           - ${key.title}`,key.id_row))
         this.setState({
+          loading : false,
           selectedOptionValue,
           selectedOptionValueKbli,
           chartOptionsArea : {
@@ -253,12 +255,16 @@ class Graph extends Component {
  }
   render() {
     const { selectedOption , selectedOptionValue , 
-      selectedOptionKbli, selectedOptionValueKbli } = this.state
+      selectedOptionKbli, selectedOptionValueKbli , loading } = this.state
      if (!this.props.isAuthenticated) {
       return (<Redirect to="/login" />);
     }
      if (this.props.isAuthenticated && this.props.level !== 1) {
-      return (<Redirect to="/dashboard" />);
+      return (<Redirect to="/graph" />);
+    }
+
+    if(loading){
+      return <div> Loading ... </div>
     }
     return (
       <div className="animated fadeIn">

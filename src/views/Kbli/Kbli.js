@@ -48,6 +48,7 @@ class Kbli extends Component {
         selectedOptionLevelThree : [],
         selectedOptionLevelFour : [],
         isLoading: false,
+        loading : true,
         optionsSelect: defaultOptions,
         value: undefined,
         selectedValueLevelOne : undefined,
@@ -484,7 +485,8 @@ class Kbli extends Component {
         selectedOptionValue,
         selectedOptionLevelOne,
         generatePrice,
-        objectWithMaxProps : res.objectWithMaxProps
+        objectWithMaxProps : res.objectWithMaxProps,
+        loading :  false
       })
     })
     .catch(err => console.log(err));
@@ -503,7 +505,8 @@ class Kbli extends Component {
             selectedOptionLevelTwo , selectedValueLevelTwo,
             selectedOptionLevelThree , selectedValueLevelThree,
             selectedOptionLevelFour , selectedValueLevelFour,
-            levelTitle
+            levelTitle,
+            loading
           } = this.state
     const { level_5, level_4 , level_3 , level_2 , level_1 , price , description, title } = form
 
@@ -535,7 +538,9 @@ class Kbli extends Component {
      if (this.props.isAuthenticated && this.props.level !== 1) {
       return (<Redirect to="/dashboard" />);
     }
-
+    if(loading){
+      return <div> Loading ... </div>
+    }
     return (
       <div className="animated fadeIn">
       <Row>
