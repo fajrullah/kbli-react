@@ -36,7 +36,7 @@ class Register extends Component {
                 'Content-Type': 'application/json'
               }
             }
-        axios.post('http://localhost:4000/register',data,config)
+        axios.post('https://kbli-rest.herokuapp.com/register',data,config)
         .then(response => {
            this.setState({
               ...this.state,

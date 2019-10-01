@@ -6,7 +6,7 @@ export default function withStoredHeaders() {
   const values = JSON.parse(localStorage.getItem('token'));
 
   return axios.create({
-  	baseURL: 'https://kbli-rest.herokuapp.com/',
+  	baseURL: 'https://api.backroom.id/',
     headers: {
       'Authorization' : `Bearer ${values.token}`,
     },

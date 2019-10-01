@@ -220,8 +220,9 @@ class Kbli extends Component {
 
   addBySelectOption = (obj) => {
     const { generatePrice } = this.state
-    postingDataAPI('kbli',{...obj, price : JSON.stringify(generatePrice)}).then(result => {
+    postingDataAPI('kbli',{ ...obj, price : JSON.stringify(generatePrice)}).then(result => {
       if(result.response === 200){
+        console.log(result)
         this.setState({
                  postData : {
                       isFetching : true,
@@ -238,6 +239,7 @@ class Kbli extends Component {
     this.setState({ isLoading: true });
     postingDataAPI('kblilast', {level_2 : 0, level_3 : 0 , level_4 : 0, level_5 : 0})
     .then(response => {
+        console.log(response)
         if(response.response === 200){
             const numberID = response.data[0].level_1 + 1
             this.addBySelectOption({level_1 : numberID , level_2 : 0, level_3 : 0 , level_4 : 0, level_5 : 0, title : inputValue})

@@ -9,7 +9,6 @@ import TextField from '@material-ui/core/TextField';
 import building from '../../../assets/img/building.jpg';
 require('../../custom.css');
 
-const CryptoJS = require("crypto-js");
 const renderInput = ({
   label,
   input,

@@ -8,6 +8,7 @@ export const SET_AUTH = 'SET_AUTH';
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
+const url = 'https://api.backroom.id/'
 
 export function setFetching(v) {
   return { type: SET_FETCHING, state: v };
@@ -35,7 +36,7 @@ export function deleteToken() {
 
 export function actionCheckExpired(values) {
    return dispatch => {
-     axios.get("https://kbli-rest.herokuapp.com/profile/", {
+     axios.get(`${url}profile`, {
         headers: {
           'Authorization': `${values}`,
           'Secret' : '4sri',
@@ -43,7 +44,6 @@ export function actionCheckExpired(values) {
       })
         .then(response => response.data)
         .then(json => {
-
             if(json.status !== 'on'){
                 localStorage.clear();
                 dispatch(deleteUser());
@@ -56,7 +56,7 @@ export function actionCheckExpired(values) {
 
 export function actionGetUsername(values) {
    return dispatch => {
-     axios.post("https://kbli-rest.herokuapp.com/getUser/",{ email : values.email }, {
+     axios.post(`${url}getUser`,{ email : values.email }, {
         headers: {
           'Authorization': `Bearer ${values.token}`,
         }
@@ -74,7 +74,7 @@ export function actionGetUsername(values) {
 export function actionTryLogin(values) {
     return dispatch => {
     dispatch(setFetching(true));
-    axios.post('https://kbli-rest.herokuapp.com/login/', values)
+    axios.post(`${url}login`, values)
     .then(response => response.data)
     .then(data => {
       const token = data;
