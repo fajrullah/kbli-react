@@ -6,7 +6,7 @@ export default function withStoredHeaders() {
   const values = JSON.parse(localStorage.getItem('token'));
 
   return axios.create({
-  	baseURL: 'https://api.backroom.id/',
+  	baseURL: 'yoururl',
     headers: {
       'Authorization' : `Bearer ${values.token}`,
     },

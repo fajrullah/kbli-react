@@ -8,7 +8,7 @@ export const SET_AUTH = 'SET_AUTH';
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-const url = 'https://api.backroom.id/'
+const url = 'yoururl'
 
 export function setFetching(v) {
   return { type: SET_FETCHING, state: v };
